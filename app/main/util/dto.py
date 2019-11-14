@@ -1,6 +1,29 @@
 from flask_restplus import Namespace, fields
 
 
+class AuthDto:
+    api = Namespace('auth', description='operaciones relaciones a autenticacion')
+    usuario_auth = api.model('detalles_auth',{
+        'email':fields.String(required=True, description='email de usuario'),
+        'clave': fields.String(required=True, description='clave del usuario'),
+    })
+
+
+class AtributoDto:
+    api = Namespace('Atributo', description='Operaciones relacionadas a atributos de tratamientos de datos')
+    atributo = api.model('atributo',{
+        'descripcion': fields.String(required=True, description='nombre del atributo'),
+        'tratamiento_id': fields.String(requried=True, description='id del tratamiento padre')
+    })
+
+    atributoConsultar = api.model('atributoConsultar',{
+        'id': fields.Integer(required=True, description ='id del atributo'),
+        'descripcion': fields.String(required=True, description='nombre del atributo'),
+        'tratamiento_id': fields.Integer(requried=True, description='id del tratamiento padre'),
+        'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
+    })
+
+
 class ColorDto:
     api = Namespace('Color', description='Operaciones relacionadas a paleta de colores para anotaciones')
     color = api.model('color',{
@@ -11,20 +34,6 @@ class ColorDto:
         'id': fields.Integer(required=True, descripcion='id del color'),
         'codigo': fields.String(description='codigo hexadecimal del color'),
         'disponible': fields.Boolean(description='color disponible')
-    })
-
-
-class TratamientoDto:
-    api = Namespace('Tratamiento', description='Operaciones relacionadas a tratamientos')
-    tratamiento = api.model('tratamiento',{
-        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
-        'color_primario': fields.Integer(required=True, description='id del color')
-    })
-
-    tratamientoConsultar = api.model('tratamientoConsultar', {
-        'id': fields.Integer(required=False, description='id tratamiento'),
-        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
-        'color_primario': fields.String(required=True, description='Color del tratamiento para anotaciones')
     })
 
 
@@ -57,31 +66,17 @@ class ModuloDto:
     })
 
 
-class UsuarioDto:
-    api = Namespace('Usuario', description='Operaciones relacionadas a usuarios ')
-    usuario = api.model('usuario',{
-        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
-        'clave': fields.String(required=True, description='clave para la cuenta del usuario'),
-        'rol_usuario': fields.Integer(required=True, description='rol de usuario'),
-        'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
+class TratamientoDto:
+    api = Namespace('Tratamiento', description='Operaciones relacionadas a tratamientos')
+    tratamiento = api.model('tratamiento',{
+        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
+        'color_primario': fields.Integer(required=True, description='id del color')
     })
 
-    usuarioConsultar = api.model('usuarioConsultar', {
-        'id': fields.Integer(description='id de usuario'),
-        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
-        'rol_usuario': fields.String(required=True, description='rol de usuario'),
-        'activo': fields.Boolean(description='Usuario activo/inactivo'),
-        'entrenamiento': fields.Boolean(description='Usuario en entrenamiento?')
-    })
-
-    usuarioConsultarLogin = api.model('usuarioConsultarLogin',{
-        'id': fields.Integer(description='id de usuario'),
-        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
-        'rol_usuario': fields.String(required=True, description='rol de usuario'),
-        'activo': fields.Boolean(description='Usuario activo/inactivo'),
-        'entrenamiento': fields.Boolean(description='Usuario en entrenamiento?'),
-        'modulos': fields.List(fields.Nested(ModuloDto.moduloConsultarHijos2))
-
+    tratamientoConsultar = api.model('tratamientoConsultar', {
+        'id': fields.Integer(required=False, description='id tratamiento'),
+        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
+        'color_primario': fields.String(required=True, description='Color del tratamiento para anotaciones')
     })
 
 
@@ -111,9 +106,46 @@ class RolUsuarioDto:
     })
 
 
-class AuthDto:
-    api = Namespace('auth', description='operaciones relaciones a autenticacion')
-    usuario_auth = api.model('detalles_auth',{
-        'email':fields.String(required=True, description='email de usuario'),
-        'clave': fields.String(required=True, description='clave del usuario'),
+class UsuarioDto:
+    api = Namespace('Usuario', description='Operaciones relacionadas a usuarios ')
+    usuario = api.model('usuario',{
+        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
+        'clave': fields.String(required=True, description='clave para la cuenta del usuario'),
+        'rol_usuario': fields.Integer(required=True, description='rol de usuario'),
+        'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
     })
+
+    usuarioConsultar = api.model('usuarioConsultar', {
+        'id': fields.Integer(description='id de usuario'),
+        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
+        'rol_usuario': fields.String(required=True, description='rol de usuario'),
+        'activo': fields.Boolean(description='Usuario activo/inactivo'),
+        'entrenamiento': fields.Boolean(description='Usuario en entrenamiento?')
+    })
+
+    usuarioConsultarLogin = api.model('usuarioConsultarLogin',{
+        'id': fields.Integer(description='id de usuario'),
+        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
+        'rol_usuario': fields.String(required=True, description='rol de usuario'),
+        'activo': fields.Boolean(description='Usuario activo/inactivo'),
+        'entrenamiento': fields.Boolean(description='Usuario en entrenamiento?'),
+        'modulos': fields.List(fields.Nested(ModuloDto.moduloConsultarHijos2))
+
+    })
+
+
+class ValorDto:
+    api = Namespace('Valor', description='Operaciones relacionadas a valores de un atributo')
+    valor = api.model('valor',{
+        'descripcion': fields.String(required=True, description='nombre del valor'),
+        'atributo_id': fields.Integer(requried=True, description='id del atributo padre'),
+    })
+    valorConsultar = api.model('valorConsultar',{
+        'id': fields.Integer(required=True, description='id del atributo'),
+        'descripcion': fields.String(required=True, description='nombre del valor'),
+        'tratamiento_id': fields.Integer(required=True, description='id del tratamiento padre'),
+        'atributo_id': fields.Integer(required=True, description='id del atributo padre'),
+        'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
+    })
+
+

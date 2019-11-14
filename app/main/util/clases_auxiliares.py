@@ -33,3 +33,20 @@ class TratamientoConsultar:
         self.id = id
         self.descripcion = descripcion
         self.color_primario = color_primario
+
+
+class AtributoConsultar:
+    def __init__(self, id, descripcion, tratamiento_id, color_primario):
+        self.id = id,
+        self.descripcion = descripcion,
+        self.tratamiento_id = tratamiento_id,
+        self.color_primario = color_primario
+
+
+class ValorConsultar:
+    def __init__(self, id, descripcion, tratamiento_id, atributo_id, color_primario):
+        self.id = id,
+        self.descripcion = descripcion,
+        self.tratamiento_id = tratamiento_id,
+        self.atributo_id = atributo_id
+        self.color_primario = color_primario
