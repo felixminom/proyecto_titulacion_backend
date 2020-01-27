@@ -1,6 +1,5 @@
 from flask import request
 from flask_restplus import Resource
-
 from ..util.dto import AtributoDto
 from ..service.atributo_services import guardar_atributo, obtener_todos_atributos, obtener_atributo, \
     obtener_atributos_tratamiento
@@ -32,7 +31,6 @@ class Atributo(Resource):
 @api.response(404, 'No existen atributos para este tratamiento')
 class AtributoTratamientoId(Resource):
     @api.doc('Obtener tratamiento')
-    @api.marshal_with(_atributoConsultar)
     def get(self, tratamiento_id):
         """obtener atributos por tratamiento"""
         return obtener_atributos_tratamiento(tratamiento_id)
@@ -43,17 +41,10 @@ class AtributoTratamientoId(Resource):
 @api.response(404, 'Atributo no encontrado')
 class AtributoId(Resource):
     @api.doc('Obtener tratamiento')
-    @api.marshal_with(_atributoConsultar)
+    #@api.marshal_with(_atributoConsultar)
     def get(self, id):
         """obtener atributos por id"""
         atributo = obtener_atributo(id)
-        if not atributo:
-            response_object = {
-                'estado': 'fallido',
-                'mensaje': 'No existen atributo'
-            }
-            return response_object, 404
-        else:
-            return atributo
+        return atributo
 
 

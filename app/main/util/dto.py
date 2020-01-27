@@ -3,28 +3,14 @@ from flask_restplus import Namespace, fields
 
 class AuthDto:
     api = Namespace('auth', description='operaciones relaciones a autenticacion')
-    usuario_auth = api.model('detalles_auth',{
-        'email':fields.String(required=True, description='email de usuario'),
+    usuario_auth = api.model('detalles_auth', {
+        'email': fields.String(required=True, description='email de usuario'),
         'clave': fields.String(required=True, description='clave del usuario'),
     })
 
 
-class AtributoDto:
-    api = Namespace('Atributo', description='Operaciones relacionadas a atributos de tratamientos de datos')
-    atributo = api.model('atributo',{
-        'descripcion': fields.String(required=True, description='nombre del atributo'),
-        'tratamiento_id': fields.String(requried=True, description='id del tratamiento padre')
-    })
-
-    atributoConsultar = api.model('atributoConsultar',{
-        'id': fields.Integer(required=True, description ='id del atributo'),
-        'descripcion': fields.String(required=True, description='nombre del atributo'),
-        'tratamiento_id': fields.Integer(requried=True, description='id del tratamiento padre'),
-        'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
-    })
-
-
 class ColorDto:
+
     api = Namespace('Color', description='Operaciones relacionadas a paleta de colores para anotaciones')
     color = api.model('color',{
         'codigo': fields.String(required=True, description='codigo hexadecimal del color')
@@ -66,28 +52,23 @@ class ModuloDto:
     })
 
 
-class TratamientoDto:
-    api = Namespace('Tratamiento', description='Operaciones relacionadas a tratamientos')
-    tratamiento = api.model('tratamiento',{
-        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
-        'color_primario': fields.Integer(required=True, description='id del color')
-    })
-
-    tratamientoConsultar = api.model('tratamientoConsultar', {
-        'id': fields.Integer(required=False, description='id tratamiento'),
-        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
-        'color_primario': fields.String(required=True, description='Color del tratamiento para anotaciones')
+class PoliticaDto:
+    api = Namespace('Politica', description='Operaciones relacionadas a politicas')
+    politica = api.model('Politica', {
+        'nombre': fields.String(required=True, description='Nombre de la empresa o compania'),
+        'url': fields.String(required=True, description='URL del sitio de donde se obtuvo la politica'),
+        'fecha': fields.Date(required=True, description='Fecha en la cual fue publicada la politica de privacidad')
     })
 
 
 class RolUsuarioDto:
     api = Namespace('RolUsuario', description='Operaciones relacionadas a roles de usuario')
-    rolUsuario = api.model('rolUsuario',{
+    rolUsuario = api.model('rolUsuario', {
         'nombre': fields.String(required=True, description= 'nombre del rol de usuario'),
-        'descripcion': fields.String(required = True, description = 'descripcion del rol en el sistema')
+        'descripcion': fields.String(required=True, description = 'descripcion del rol en el sistema')
     })
 
-    rolUsuarioConsultar = api.model ('rolUsuarioConsultar',{
+    rolUsuarioConsultar = api.model ('rolUsuarioConsultar', {
         'id' : fields.Integer(required = True, description = 'id del rol'),
         'nombre': fields.String(required=True, description='nombre del rol de usuario'),
         'descripcion': fields.String(required=True, description='descripcion del rol en el sistema')
@@ -136,16 +117,68 @@ class UsuarioDto:
 
 class ValorDto:
     api = Namespace('Valor', description='Operaciones relacionadas a valores de un atributo')
-    valor = api.model('valor',{
+    valor = api.model('valor', {
         'descripcion': fields.String(required=True, description='nombre del valor'),
         'atributo_id': fields.Integer(requried=True, description='id del atributo padre'),
     })
-    valorConsultar = api.model('valorConsultar',{
+
+    valorConsultar = api.model('valorConsultar', {
         'id': fields.Integer(required=True, description='id del atributo'),
         'descripcion': fields.String(required=True, description='nombre del valor'),
         'tratamiento_id': fields.Integer(required=True, description='id del tratamiento padre'),
         'atributo_id': fields.Integer(required=True, description='id del atributo padre'),
         'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
     })
+
+    valorCompleto = api.model('valorCompleto', {
+        'id': fields.Integer(required=True, description='id del atributo'),
+        'descripcion': fields.String(required=True, description='nombre del valor'),
+        'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
+    })
+
+
+class AtributoDto:
+    api = Namespace('Atributo', description='Operaciones relacionadas a atributos de tratamientos de datos')
+    atributo = api.model('atributo', {
+        'descripcion': fields.String(required=True, description='nombre del atributo'),
+        'tratamiento_id': fields.String(requried=True, description='id del tratamiento padre')
+    })
+
+    atributoConsultar = api.model('atributoConsultar', {
+        'id': fields.Integer(required=True, description ='id del atributo'),
+        'descripcion': fields.String(required=True, description='nombre del atributo'),
+        'tratamiento_id': fields.Integer(requried=True, description='id del tratamiento padre'),
+        'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
+    })
+
+    atributoCompleto = api.model('atributoCompleto', {
+        'id': fields.Integer(required=True, description='id del atributo'),
+        'descripcion': fields.String(required=True, description='nombre del atributo'),
+        'color_primario': fields.String(requried=True, description='codigo hexadecimal del color'),
+        'hijos': fields.List(fields.Nested(ValorDto.valorCompleto))
+
+    })
+
+
+class TratamientoDto:
+    api = Namespace('Tratamiento', description='Operaciones relacionadas a tratamientos')
+    tratamiento = api.model('tratamiento',{
+        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
+        'color_primario': fields.Integer(required=True, description='id del color')
+    })
+
+    tratamientoConsultar = api.model('tratamientoConsultar', {
+        'id': fields.Integer(required=False, description='id tratamiento'),
+        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
+        'color_primario': fields.String(required=True, description='Color del tratamiento para anotaciones')
+    })
+
+    tratamientoCompleto = api.model('tratamientoCompleto', {
+        'id': fields.Integer(required=True),
+        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
+        'color_primario': fields.String(required=True, description='Color del tratamiento para anotaciones'),
+        'hijos': fields.List(fields.Nested(AtributoDto.atributoCompleto))
+    })
+
 
 

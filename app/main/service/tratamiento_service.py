@@ -1,7 +1,9 @@
 from app.main import db
 from app.main.model.tratamiento import Tratamiento
 from app.main.model.color import Color
-from ..util.clases_auxiliares import TratamientoConsultar
+from ..service.atributo_services import obtener_atributos_tratamiento_completo
+from ..service.valor_service import obtener_valores_atributo_completo
+from ..util.clases_auxiliares import TratamientoConsultar, TratamientoCompleto, AtributoCompleto
 
 
 def guardar_tratamiento(data):
@@ -9,7 +11,7 @@ def guardar_tratamiento(data):
     tratamiento_color = Tratamiento.query.filter_by(color_primario=data['color_primario']).first()
     if not tratamiento_descripcion:
         if not tratamiento_color:
-            color = Color.query.filter_by(id=data['color_primario'])
+            color = Color.query.filter_by(id=data['color_primario']).first()
             color.disponible = False
             nuevo_tratamiento = Tratamiento(
                 descripcion=data['descripcion'],
@@ -75,6 +77,30 @@ def editar_tratamiento(data, id):
             'mensaje': 'No se pudo encontrar el tratamiento'
         }
         return response_object, 409
+
+
+def obtener_tratamientos_completos():
+    db.session.configure(autoflush=False)
+    tratamientos = [TratamientoCompleto]
+    tratamientos_aux = Tratamiento.query.all()
+    i = 0
+    tratamientos.clear()
+    for item in tratamientos_aux:
+        atributos_aux = obtener_atributos_tratamiento_completo(item.id)
+        atributos = [AtributoCompleto]
+        j = 0
+        atributos.clear()
+        if atributos_aux:
+            for item2 in atributos_aux:
+                if item2.valores:
+                    valores_aux = obtener_valores_atributo_completo(item2.id)
+                    atributo = AtributoCompleto(item2.id, item2.descripcion, item2.color_primario, valores_aux)
+                    atributos.insert(j, atributo)
+                    j += 1
+            tratamiento_aux = TratamientoCompleto(item.id, item.descripcion, item.color_tratamiento.codigo, atributos)
+            tratamientos.insert(i, tratamiento_aux)
+            i += 1
+    return tratamientos
 
 
 def guardar_cambios(data):

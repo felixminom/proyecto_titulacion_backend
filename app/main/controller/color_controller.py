@@ -44,7 +44,7 @@ class ColorId(Resource):
 @api.route('/disponible')
 class ColorDisponible(Resource):
     @api.doc('Obtener colores disponibles')
-    @api.marshal_with(_color)
+    @api.marshal_with(_colorConsultar)
     def get(self):
         """Obtener colores disponibles"""
         colores = obtener_colores_disponibles()

@@ -2,11 +2,12 @@ from flask import request
 from flask_restplus import Resource
 
 from ..util.dto import TratamientoDto
-from ..service.tratamiento_service import guardar_tratamiento, obtener_todos_tratamientos, obtener_un_tratamiento, editar_tratamiento
+from ..service.tratamiento_service import guardar_tratamiento, obtener_todos_tratamientos, obtener_tratamientos_completos, obtener_un_tratamiento, editar_tratamiento
 
 api = TratamientoDto.api
 _tratamiento = TratamientoDto.tratamiento
 _tratamientoConsultar = TratamientoDto.tratamientoConsultar
+_tratamientoCompleto = TratamientoDto.tratamientoCompleto
 
 
 @api.route('/')
@@ -24,6 +25,15 @@ class TratamientoList(Resource):
         """Crea un nuevo tratamiento"""
         data = request.json
         return guardar_tratamiento(data=data)
+
+
+@api.route('/TratamientosCompletos')
+class TratamientoCompleto(Resource):
+    @api.doc('Lista de tratamientos')
+    @api.marshal_list_with(_tratamientoCompleto)
+    def get(self):
+        """Lista de tratamientos completos"""
+        return obtener_tratamientos_completos()
 
 
 @api.route('/<id>')

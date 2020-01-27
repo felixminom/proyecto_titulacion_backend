@@ -3,6 +3,11 @@ from app.main.model.valor import Valor
 from app.main.model.atributo import Atributo
 from app.main.model.tratamiento import Tratamiento
 from app.main.util.clases_auxiliares import ValorConsultar
+from app.main.util.dto import ValorDto
+from flask_restplus import marshal
+
+
+_valorConsultar = ValorDto.valorConsultar
 
 
 def guardar_valor(valor):
@@ -36,7 +41,11 @@ def obtener_todos_valores():
     i = 0
     valores.clear()
     if not valores_consultar:
-        return 404
+        respuesta = {
+            'estado':'Fallido',
+            'mensaje': 'No existen valores'
+        }
+        return respuesta, 404
     else:
         for item in valores_consultar:
             valores.insert(i, item[0])
@@ -65,15 +74,41 @@ def obtener_valores_atributo(atributo_id):
         return valores, 201
 
 
+def obtener_valores_atributo_completo(atributo_id):
+    valores = [ValorConsultar]
+    valores_consultar = (db.session.query(Valor, Atributo, Tratamiento)
+                         .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
+                         .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
+                         .filter(Valor.atributo_id == atributo_id).all())
+    i = 0
+    valores.clear()
+    for item in valores_consultar:
+        valores.insert(i, item[0])
+        valores[i].tratamiento_id = item[2].id
+        valores[i].color_primario = item[2].color_tratamiento.codigo
+        i += 1
+    return valores
+
+
 def obtener_valor(id):
-    valor = db.session.query(Valor, Atributo, Tratamiento)\
+    valor_aux = db.session.query(Valor, Atributo, Tratamiento)\
         .outerjoin(Atributo, Valor.atributo_id == Atributo.id)\
         .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)\
         .filter(Valor.id == id).first()
-    if not valor:
-        return 404
+    if not valor_aux:
+        respose_object = {
+            'estatus': 'fallido',
+            'mensaje': 'No exite atributo'
+        }
+        return respose_object,404
     else:
-        return valor, 201
+        valor = ValorConsultar
+        valor.id = valor_aux[0].id
+        valor.descripcion = valor_aux[0].descripcion
+        valor.tratamiento_id = valor_aux[2].id
+        valor.atributo_id = valor_aux[0].atributo_id
+        valor.color_primario = valor_aux[2].color_tratamiento.codigo
+        return marshal(valor, _valorConsultar), 201
 
 
 def guardar_cambios(data):

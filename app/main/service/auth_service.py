@@ -22,7 +22,6 @@ def consultar_modulos_hijos(rolUsuario):
 
 
 class Auth:
-
     @staticmethod
     def login_usuario(data):
         try:

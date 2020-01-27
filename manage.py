@@ -18,8 +18,8 @@ from app.main.model import tratamiento
 from app.main.model import usuario
 from app.main.model import valor
 
-
-app = create_app(os.getenv('BOILERPLATE_ENV') or 'dev')
+ENVIRONMENT = ''
+app = create_app(os.getenv('ENVIRONMENT') or 'dev')
 app.register_blueprint(blueprint)
 
 app.app_context().push()

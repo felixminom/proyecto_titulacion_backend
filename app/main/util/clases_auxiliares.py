@@ -35,6 +35,22 @@ class TratamientoConsultar:
         self.color_primario = color_primario
 
 
+class AtributoCompleto:
+    def __init__(self, id, descripcion, color_primario, hijos):
+        self.id = id
+        self.descripcion = descripcion
+        self.color_primario = color_primario
+        self.hijos = hijos
+
+
+class TratamientoCompleto:
+    def __init__(self, id, descripcion, color_primario, hijos):
+        self.id = id
+        self.descripcion = descripcion
+        self.color_primario = color_primario
+        self.hijos = hijos
+
+
 class AtributoConsultar:
     def __init__(self, id, descripcion, tratamiento_id, color_primario):
         self.id = id,
