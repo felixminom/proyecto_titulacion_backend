@@ -10,6 +10,7 @@ from .main.controller.color_controller import api as color_ns
 from .main.controller.atributo_controller import api as atributo_ns
 from .main.controller.valor_controller import api as valor_ns
 from .main.controller.politica_controller import api as politica_ns
+from .main.controller.anotacion_controller import api as anotacion_ns
 
 blueprint = Blueprint('api', __name__)
 
@@ -28,6 +29,7 @@ api.add_namespace(tratamiento_ns, path='/Tratamiento')
 api.add_namespace(usuario_ns, path='/Usuario')
 api.add_namespace(valor_ns, path='/Valor')
 api.add_namespace(politica_ns, path='/Politica')
+api.add_namespace(anotacion_ns, path='/Anotacion')
 
 
 

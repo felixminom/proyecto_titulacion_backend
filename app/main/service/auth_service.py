@@ -25,13 +25,13 @@ class Auth:
     @staticmethod
     def login_usuario(data):
         try:
-            usuarioAux = Usuario.query.filter_by(email=data['email']).first()
-            usuario.id = usuarioAux.id
-            usuario.email = usuarioAux.email
-            usuario.rol_usuario = usuarioAux.rol_usuario
-            usuario.activo = usuarioAux.activo
-            if usuarioAux and usuarioAux.comparar_clave(data['clave']):
-                auth_token = Usuario.codificar_auth_token(usuario_id=usuarioAux.id)
+            usuario_aux = Usuario.query.filter_by(email=data['email']).first()
+            usuario.id = usuario_aux.id
+            usuario.email = usuario_aux.email
+            usuario.rol_usuario = usuario_aux.rol_usuario
+            usuario.activo = usuario_aux.activo
+            if usuario_aux and usuario_aux.comparar_clave(data['clave']):
+                auth_token = Usuario.codificar_auth_token(usuario_id=usuario_aux.id)
                 if auth_token:
                     response_object = {
                         'estado': 'exito',
@@ -42,8 +42,8 @@ class Auth:
                     return response_object, 201
             else:
                 response_object = {
-                    'estado' : 'fallido',
-                    'mensaje' : 'email o clave no coinciden'
+                    'estado': 'fallido',
+                    'mensaje': 'email o clave no coinciden'
                 }
                 return response_object, 401
         except Exception as e:

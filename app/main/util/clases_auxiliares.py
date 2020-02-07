@@ -66,3 +66,59 @@ class ValorConsultar:
         self.tratamiento_id = tratamiento_id,
         self.atributo_id = atributo_id
         self.color_primario = color_primario
+
+
+class ParrafoMostrar:
+    def __init__(self, titulo='', texto='', texto_html=''):
+        self.titulo = titulo
+        self.texto = texto
+        self.texto_html = texto_html
+
+
+class ParrafoGuardar:
+    def __init__(self, secuencia, titulo, texto, texto_html, politica_id):
+        self.secuencia = secuencia
+        self.titulo = titulo
+        self.texto = texto
+        self.texto_html = texto_html
+        self.politica_id = politica_id
+
+
+class PoliticaMostrar:
+    def __init__(self, nombre ='', fecha='', url='', parrafos=[]):
+        self.nombre = nombre
+        self.fecha = fecha
+        self.url = url
+        self.parrafos = parrafos
+
+
+class AnotacionConsultar:
+    def __int__(self, texto, texto_html, comentario, valor_id, valor_descripcion, atributo_id, atributo_descripcion,
+                tratamiento_id, tratamiento_descripcion, parrafo_id, usuario_id, usuario_nombre):
+        self.texto = texto
+        self.texto_html = texto_html
+        self.comentario = comentario
+        self.valor_id = valor_id
+        self.valor_descripcion = valor_descripcion
+        self.atributo_id = atributo_id
+        self.atributo_descripcion = atributo_descripcion
+        self.tratamiento_id = tratamiento_id
+        self.tratamiento_descripcion = tratamiento_descripcion
+        self.parrafo_id = parrafo_id
+        self.usuario_id = usuario_id
+        self.usuario_nombre = usuario_nombre
+
+
+class PoliticaUsuarioGuardar:
+    def __init__(self, politica_id, usuario_id, finalizado):
+        self.politica_id = politica_id
+        self.usuario_id = usuario_id
+        self.finalizado = finalizado
+
+
+class PoliticaAnotadorNoFinalizadas:
+    def __init__(self, politica_id, politica_nombre, progreso):
+        self.politica_id = politica_id
+        self.politica_nombre = politica_nombre
+        self.progreso = progreso
+

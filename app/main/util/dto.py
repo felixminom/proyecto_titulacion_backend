@@ -52,12 +52,72 @@ class ModuloDto:
     })
 
 
+class AnotacionDto:
+    api = Namespace('Anotacion',description='Operaciones relacionadas a anotaciones')
+    anotacion = api.model('anotacion', {
+        'texto': fields.String(required=True),
+        'texto_html': fields.String(required=True),
+        'comentario': fields.String,
+        'parrafo_id': fields.Integer(required=True),
+        'valor_id': fields.Integer(required=True),
+        'usuario_id': fields.Integer(required=True)
+    })
+
+    anotacionConsultar = api.model('anotacionConsultar', {
+        'texto_html': fields.String(required=True),
+        'comentario': fields.String,
+        'valor_id': fields.Integer(required=True),
+        'valor_descripcion': fields.String,
+        'atributo_id': fields.Integer,
+        'atributo_descripcion': fields.String,
+        'tratamiento_id': fields.Integer,
+        'tratamiento_descripcion': fields.String,
+        'parrafo_id': fields.Integer(required=True),
+        'usuario_id': fields.Integer(required=True),
+        'usuario_nombre': fields.String
+    })
+
+    anotacionConsultarLista = api.model('anotacionConsultarLista', {
+        'anotaciones_politica' : fields.List(fields.Nested(anotacionConsultar))
+    })
+
+
+class ParrafoDto:
+    api = Namespace('Parrafo', description='Operaciones relacionadas a parrafos')
+    parrafoMostrar = api.model('parrafoMostrar', {
+        'titulo': fields.String(required=False, description='titulo de la seccion o parrafo'),
+        'texto_html': fields.String
+    })
+
+
 class PoliticaDto:
     api = Namespace('Politica', description='Operaciones relacionadas a politicas')
     politica = api.model('Politica', {
         'nombre': fields.String(required=True, description='Nombre de la empresa o compania'),
         'url': fields.String(required=True, description='URL del sitio de donde se obtuvo la politica'),
         'fecha': fields.Date(required=True, description='Fecha en la cual fue publicada la politica de privacidad')
+    })
+
+    politicaMostrar = api.model('PoliticaMostrar', {
+        'nombre': fields.String(required=True, description='Nombre de la empresa o compania'),
+        'url': fields.String,
+        'fecha': fields.String,
+        'parrafos': fields.List(fields.Nested(ParrafoDto.parrafoMostrar))
+    })
+
+    politicaUsuarioGuardar = api.model('politicaUsuarioGuardar', {
+        'politica_id': fields.Integer(required=True),
+        'usuario_id': fields.Integer(required=True)
+    })
+
+    PoliticaAnotarNoFinalizada = api.model('PoliticaAnotarNoFinalizada',{
+        'politica_id': fields.Integer(required=True),
+        'politica_nombre': fields.String(required=True),
+        'progeso': fields.Float(required=True)
+    })
+
+    PoliticaAnotarNoFinalizadaLista = api.model('PoliticaAnotarNoFinalizadaLista', {
+        'politicas': fields.List(fields.Nested(PoliticaAnotarNoFinalizada))
     })
 
 

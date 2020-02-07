@@ -18,6 +18,7 @@ class Usuario(db.Model):
     entrenamiento = db.Column(db.Boolean)
     anotaciones = db.relationship("Anotacion", backref=db.backref("usuario"))
 
+
     @property
     def password(self):
         raise AttributeError('password: campo solo de escritura')

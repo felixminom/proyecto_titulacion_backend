@@ -18,7 +18,7 @@ class UsuarioLogin(Resource):
     def post(self):
         """Ingresar al sistema"""
         data = request.json
-        return  Auth.login_usuario(data)
+        return Auth.login_usuario(data)
 
 
 @api.route('/logout')

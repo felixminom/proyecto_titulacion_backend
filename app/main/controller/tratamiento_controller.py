@@ -33,7 +33,11 @@ class TratamientoCompleto(Resource):
     @api.marshal_list_with(_tratamientoCompleto)
     def get(self):
         """Lista de tratamientos completos"""
-        return obtener_tratamientos_completos()
+        tratamientos_completos = obtener_tratamientos_completos()
+        if not tratamientos_completos:
+            api.abort(404)
+        else:
+            return tratamientos_completos
 
 
 @api.route('/<id>')
