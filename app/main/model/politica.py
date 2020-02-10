@@ -4,8 +4,10 @@ from .. import db
 class PoliticaUsuarioRelacion(db.Model):
     __tablename__ = 'politica_usuario'
 
-    politica_id = db.Column( db.Integer, db.ForeignKey('politica.id'), primary_key=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    politica_id = db.Column(db.Integer, db.ForeignKey('politica.id'), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    consolidar = db.Column(db.Boolean, nullable=False, default=False)
     finalizado = db.Column(db.Boolean, nullable=False, default=False)
 
     politica = db.relationship("Politica", backref=db.backref("politicas"))

@@ -6,7 +6,8 @@ from flask_restplus import marshal
 from werkzeug.utils import secure_filename
 from ..util.clases_auxiliares import PoliticaMostrar, ParrafoMostrar, ParrafoGuardar, PoliticaAnotadorNoFinalizadas
 from ..util.dto import PoliticaDto
-from ..service.parrafo_service import guardar_parrafo
+from ..service.parrafo_service import guardar_parrafo, consultar_num_parrafos_politica
+from ..service.anotacion_service import consultar_ultima_anotacion_usuario_politica
 import os
 
 CARPETA_SUBIDA = os.getcwd() + '\Politicas\\'
@@ -227,39 +228,74 @@ def guardar_politica():
         return respuesta, 409
 
 
-def consultar_politica_anotadores_no_finalizadas(usuario_id):
+def consultar_politicas_consolidador_no_finalizadas(consolidador_id):
     politicas_anotar = [PoliticaAnotadorNoFinalizadas]
     politicas_anotar_sql = (db.session.query(PoliticaUsuarioRelacion, Politica)
                             .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
-                            .filter(PoliticaUsuarioRelacion.usuario_id == usuario_id,
+                            .filter(PoliticaUsuarioRelacion.usuario_id == consolidador_id,
+                                    PoliticaUsuarioRelacion.consolidar == True,
                                     PoliticaUsuarioRelacion.finalizado == False).all())
 
     if not politicas_anotar_sql:
         respuesta = {
             "estado": "fallido",
-            "mensaje": "El usuario no tiene politicas asignadas"
+            "mensaje": "El usuario no tiene politicas por consolidar"
         }
         return respuesta, 409
     else:
-        print(politicas_anotar_sql)
+        i = 0
+        politicas_anotar.clear()
+        for item in politicas_anotar_sql:
+            if politica_lista_para_consolidar(item[0].politica_id):
+                politicas_anotar.insert(i, item[0])
+                politicas_anotar[i].politica_nombre = item[1].nombre
+                politicas_anotar[i].progreso = calcular_progeso_politica(politicas_anotar[i].politica_id, consolidador_id,True)
+                i += 1
+
+        return marshal(politicas_anotar, PoliticaDto.politicaAnotarNoFinalizada), 201
+
+
+def consultar_politicas_anotador_no_finalizadas(usuario_id):
+    politicas_anotar = [PoliticaAnotadorNoFinalizadas]
+    politicas_anotar_sql = (db.session.query(PoliticaUsuarioRelacion, Politica)
+                            .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
+                            .filter(PoliticaUsuarioRelacion.usuario_id == usuario_id,
+                                    PoliticaUsuarioRelacion.consolidar == False,
+                                    PoliticaUsuarioRelacion.finalizado == False).all())
+
+    if not politicas_anotar_sql:
+        respuesta = {
+            "estado": "fallido",
+            "mensaje": "El usuario no tiene politicas por anotar"
+        }
+        return respuesta, 409
+    else:
         i = 0
         politicas_anotar.clear()
         for item in politicas_anotar_sql:
             politicas_anotar.insert(i, item[0])
             politicas_anotar[i].politica_nombre = item[1].nombre
-            politicas_anotar[i].progreso = 60.0
+            politicas_anotar[i].progreso = calcular_progeso_politica(politicas_anotar[i].politica_id, usuario_id, False)
             i += 1
-        print(politicas_anotar)
-        return marshal(politicas_anotar, PoliticaDto.PoliticaAnotarNoFinalizada), 201
+        return marshal(politicas_anotar, PoliticaDto.politicaAnotarNoFinalizada), 201
+
+
+def calcular_progeso_politica(politica_id, usuario_id, consolidar):
+    num_parrafos = consultar_num_parrafos_politica(politica_id)
+    ultimo_parrafo_anotado = consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar)
+    return (ultimo_parrafo_anotado/num_parrafos) * 100
 
 
 def guardar_usuario_politica(data):
     politica_usuario = PoliticaUsuarioRelacion.query.filter_by(
-        politica_id=data['politica_id'], usuario_id=data['usuario_id']).first()
+        politica_id=data['politica_id'],
+        usuario_id=data['usuario_id'],
+        consolidar=data["consolidar"]).first()
     if not politica_usuario:
         nueva_politica_usuario = PoliticaUsuarioRelacion(
             politica_id=data['politica_id'],
             usuario_id=data['usuario_id'],
+            consolidar=data['consolidar'],
             finalizado=False
         )
         guardar_cambios(nueva_politica_usuario)
@@ -271,7 +307,7 @@ def guardar_usuario_politica(data):
     else:
         respuesta = {
             'estado': 'fallido',
-            'mensaje': 'La politica no existe'
+            'mensaje': 'Politica ya asignada'
         }
         return respuesta, 409
 
@@ -279,6 +315,7 @@ def guardar_usuario_politica(data):
 def actualizar_usuario_politica(data):
     politica_usuario = PoliticaUsuarioRelacion.query.filter_by(politica_id=data['politica_id'],
                                                                usuario_id=data['usuario_id']).first()
+
     if politica_usuario:
         politica_usuario.finalizado = True
         guardar_cambios(politica_usuario)
@@ -296,17 +333,15 @@ def actualizar_usuario_politica(data):
 
 
 def politica_lista_para_consolidar(politica_id):
-    politica_anotadores_consulta = (db.session.query(PoliticaUsuarioRelacion, Usuario)
-                                    .outerjoin(Usuario, PoliticaUsuarioRelacion.usuario_id == Usuario.id)
+    politica_anotadores_consulta = (db.session.query(PoliticaUsuarioRelacion)
                                     .filter(PoliticaUsuarioRelacion.politica_id == politica_id,
-                                            Usuario.rol_usuario == 2).all())
-
+                                            PoliticaUsuarioRelacion.consolidar == False).all())
     if not politica_anotadores_consulta:
         return "NO"
     else:
         listo = False
         for anotador in politica_anotadores_consulta:
-            if anotador[0].finalizado:
+            if anotador.finalizado:
                 listo = True
             else:
                 listo = False

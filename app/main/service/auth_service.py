@@ -26,15 +26,15 @@ class Auth:
     def login_usuario(data):
         try:
             usuario_aux = Usuario.query.filter_by(email=data['email']).first()
-            usuario.id = usuario_aux.id
-            usuario.email = usuario_aux.email
-            usuario.rol_usuario = usuario_aux.rol_usuario
-            usuario.activo = usuario_aux.activo
             if usuario_aux and usuario_aux.comparar_clave(data['clave']):
+                usuario.id = usuario_aux.id
+                usuario.email = usuario_aux.email
+                usuario.rol_usuario = usuario_aux.rol_usuario
+                usuario.activo = usuario_aux.activo
                 auth_token = Usuario.codificar_auth_token(usuario_id=usuario_aux.id)
                 if auth_token:
                     response_object = {
-                        'estado': 'exito',
+                        'estado': True,
                         'mensaje': 'Sesion iniciada exitosamente',
                         'Authorization': auth_token.decode(),
                         'usuario': consultar_modulos_hijos(rolUsuario=usuario.rol_usuario)
@@ -92,11 +92,32 @@ class Auth:
                 user.activo = usuarioAux.activo
                 user.entrenamiento = usuarioAux.entrenamiento
                 response_object = {
-                    'estado': 'exito',
+                    'estado': True,
                     'mensaje': 'Token valido',
-                    'usuario': consultar_modulos_hijos(id=user.rol_usuario)
+                    'usuario': consultar_modulos_hijos(rolUsuario=user.rol_usuario)
                 }
                 return response_object, 200
+            response_object = {
+                'estado': 'fallido',
+                'mensaje': respuesta
+            }
+            return response_object, 401
+        else:
+            response_object = {
+                'estado': 'fallido',
+                'mensaje': 'Provea un token valido'
+            }
+            return response_object, 401
+
+    @staticmethod
+    def obtener_id_usuario_logeado(data):
+        auth_token = data
+        if auth_token:
+            respuesta = Usuario.decodificar_auth_token(auth_token)
+            if not isinstance(respuesta, str):
+                respuesta
+                print(type(respuesta))
+                return respuesta, 201
             response_object = {
                 'estado': 'fallido',
                 'mensaje': respuesta

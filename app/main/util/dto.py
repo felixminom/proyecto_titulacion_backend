@@ -107,17 +107,14 @@ class PoliticaDto:
 
     politicaUsuarioGuardar = api.model('politicaUsuarioGuardar', {
         'politica_id': fields.Integer(required=True),
-        'usuario_id': fields.Integer(required=True)
+        'usuario_id': fields.Integer(required=True),
+        'consolidar': fields.Boolean(required=True)
     })
 
-    PoliticaAnotarNoFinalizada = api.model('PoliticaAnotarNoFinalizada',{
+    politicaAnotarNoFinalizada = api.model('PoliticaAnotarNoFinalizada',{
         'politica_id': fields.Integer(required=True),
         'politica_nombre': fields.String(required=True),
-        'progeso': fields.Float(required=True)
-    })
-
-    PoliticaAnotarNoFinalizadaLista = api.model('PoliticaAnotarNoFinalizadaLista', {
-        'politicas': fields.List(fields.Nested(PoliticaAnotarNoFinalizada))
+        'progreso': fields.Float(required=True)
     })
 
 

@@ -1,8 +1,8 @@
 from flask import request
 from flask_restplus import Resource
-
 from ..util.dto import TratamientoDto
-from ..service.tratamiento_service import guardar_tratamiento, obtener_todos_tratamientos, obtener_tratamientos_completos, obtener_un_tratamiento, editar_tratamiento
+from ..service.tratamiento_service import guardar_tratamiento, obtener_todos_tratamientos, \
+    obtener_tratamientos_completos, obtener_un_tratamiento, editar_tratamiento
 
 api = TratamientoDto.api
 _tratamiento = TratamientoDto.tratamiento

@@ -5,11 +5,10 @@ from app.main.model.atributo import Atributo
 from app.main.model.tratamiento import Tratamiento
 from app.main.model.usuario import Usuario
 from app.main.model.parrafo import Parrafo
-from app.main.model.politica import Politica
+from app.main.model.politica import Politica, PoliticaUsuarioRelacion
 from app.main.util.dto import AnotacionDto
 from app.main.util.clases_auxiliares import AnotacionConsultar
 from flask_restplus import marshal
-from flask import jsonify
 import datetime
 
 _anotacionesConsultar = AnotacionDto.anotacionConsultar
@@ -121,6 +120,16 @@ def obtener_anotaciones_politica_consolidador(parrafo_id):
             anotaciones[i].usuario_nombre = item[4].email
             i += 1
         return anotaciones, 201
+
+
+def consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar):
+    ultimo_parrafo_anotado = (db.session.query(Anotacion.parrafo_id.distinct(), Parrafo, Politica)
+                              .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
+                              .outerjoin(Politica, Parrafo.politica_id == Politica.id)
+                              .filter(Politica.id == politica_id,
+                                      Anotacion.usuario_id == usuario_id,
+                                      Anotacion.consolidar == consolidar).count())
+    return ultimo_parrafo_anotado
 
 
 def guardar_cambios(data):
