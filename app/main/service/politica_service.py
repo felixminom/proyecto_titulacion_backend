@@ -24,17 +24,23 @@ def archivo_permitido(nombre_archivo):
 
 def politica_existe_peticion():
     if 'politica' not in request.files:
-        respuesta = {
-            'estado': 'fallido',
-            'mesaje': 'no se ha enviado un archivo'
-        }
-        return respuesta, 409
+        return False
+    else:
+        return True
 
 
 def abrir_politica(nombre_archivo):
     with open(CARPETA_SUBIDA + nombre_archivo, 'r') as txt:
         politica = txt.read()
         return politica
+
+
+def existe_archivo_politica_mismo_nombre(nombre_archivo):
+    try:
+        with open(CARPETA_SUBIDA + nombre_archivo, 'r') as txt:
+            return True
+    except:
+        return False
 
 
 def separar_parrafos_principales(politica):
@@ -114,7 +120,12 @@ def llenar_politica_html(parrafos):
 
 def previsualizar_politica():
 
-    politica_existe_peticion()
+    if not politica_existe_peticion():
+        respuesta = {
+            'estado': 'fallido',
+            'mesaje': 'No existe el archivo en la peticion'
+        }
+        return respuesta, 409
 
     archivo = request.files['politica']
 
@@ -122,6 +133,13 @@ def previsualizar_politica():
         respuesta = {
             'estado': 'fallido',
             'mesaje': 'Extension de archivo invalida'
+        }
+        return respuesta, 409
+
+    if existe_archivo_politica_mismo_nombre(archivo.filename):
+        respuesta = {
+            'estado': 'fallido',
+            'mesaje': 'Ya existe un archivo con ese nombre'
         }
         return respuesta, 409
 
@@ -184,6 +202,14 @@ def guardar_politica():
 
             if archivo:
                 if os.path.isdir(CARPETA_SUBIDA):
+
+                    if existe_archivo_politica_mismo_nombre(archivo.filename):
+                        respuesta = {
+                            'estado': 'fallido',
+                            'mesaje': 'Existe un archivo con el mismo nombre'
+                        }
+                        return respuesta, 409
+
                     archivo.filename = archivo.filename.strip().replace(" ", "")
                     nombre_archivo = secure_filename(archivo.filename)
 

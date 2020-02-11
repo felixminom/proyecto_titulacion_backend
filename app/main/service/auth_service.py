@@ -93,8 +93,7 @@ class Auth:
                 user.entrenamiento = usuarioAux.entrenamiento
                 response_object = {
                     'estado': True,
-                    'mensaje': 'Token valido',
-                    'usuario': consultar_modulos_hijos(rolUsuario=user.rol_usuario)
+                    'mensaje': 'Token valido'
                 }
                 return response_object, 200
             response_object = {
