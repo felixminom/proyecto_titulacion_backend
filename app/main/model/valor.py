@@ -10,4 +10,4 @@ class Valor(db.Model):
     atributo_id = db.Column(db.Integer, db.ForeignKey('atributo.id'))
 
     def __repr__(self):
-        return 'Valor {}'.format(self.descripcion)
+        return '<Valor {}>'.format(self.descripcion)

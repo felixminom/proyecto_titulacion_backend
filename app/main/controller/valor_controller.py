@@ -2,7 +2,8 @@ from flask import request
 from flask_restplus import Resource
 
 from ..util.dto import ValorDto
-from ..service.valor_service import guardar_valor, obtener_valor, obtener_todos_valores, obtener_valores_atributo
+from ..service.valor_service import guardar_valor, obtener_valor, obtener_todos_valores, obtener_valores_atributo, \
+    obtener_valor_completo
 
 
 api = ValorDto.api
@@ -46,3 +47,13 @@ class ValorId(Resource):
     def get(self, id):
         """obtener valor por id"""
         return obtener_valor(id)
+
+
+@api.route('/Completo/<id>')
+@api.param('id','id de valor')
+@api.response(404, 'Valor no encontrado')
+class ValorId(Resource):
+    @api.doc('Obtener valor por id')
+    def get(self, id):
+        """obtener valor por id"""
+        return obtener_valor_completo(id)

@@ -39,11 +39,13 @@ class ModuloDto:
     })
 
     moduloConsultarHijos = api.model('moduloConsultarHijos', {
-        'nombre': fields.String(required=True, description='nombre del modulo'),
-        'icono': fields.String(required=True, description='icono para menu'),
+        'nombre': fields.String,
+        'icono': fields.String,
+        'path': fields.String,
         'hijos': fields.List(fields.Nested(api.model('hijos',{
-            'nombre': fields.String(required=True, description='nombre del modulo'),
-            'icono': fields.String(required=True, description='icono para menu'),
+            'nombre': fields.String,
+            'icono': fields.String,
+            'path': fields.String
         })))
     })
 
@@ -60,7 +62,10 @@ class AnotacionDto:
         'comentario': fields.String,
         'parrafo_id': fields.Integer(required=True),
         'valor_id': fields.Integer(required=True),
-        'usuario_id': fields.Integer(required=True)
+        'usuario_id': fields.Integer(required=True),
+        'consolidar' : fields.Boolean(required=True),
+        'permite': fields.Boolean(required=True),
+        'entrenamiento': fields.Boolean(required=True)
     })
 
     anotacionConsultar = api.model('anotacionConsultar', {
@@ -77,15 +82,32 @@ class AnotacionDto:
         'usuario_nombre': fields.String
     })
 
-    anotacionConsultarLista = api.model('anotacionConsultarLista', {
-        'anotaciones_politica' : fields.List(fields.Nested(anotacionConsultar))
+    anotacionConsultarAnotadores = api.model('anotacionConsultarAnotadores', {
+        'tratamiento_descripcion': fields.String,
+        'atributo_descripcion': fields.String,
+        'valor_descripcion': fields.String,
+        'color_primario': fields.String,
+        'texto_html': fields.String,
+        'comentario': fields.String
+    })
+
+    usuariosAnotaciones = api.model('usuariosAnotaciones', {
+        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
+        'rol_usuario': fields.String(required=True, description='rol de usuario'),
+        'anotaciones': fields.List(fields.Nested(anotacionConsultarAnotadores))
+    })
+
+    anotacionesAnotadoresConsultarRespuesta = api.model('anotacionesAnotadoresConsultarRespuesta', {
+        'inconsistencia': fields.Boolean,
+        'usuarios_anotaciones': fields.List(fields.Nested(usuariosAnotaciones))
     })
 
 
 class ParrafoDto:
     api = Namespace('Parrafo', description='Operaciones relacionadas a parrafos')
     parrafoMostrar = api.model('parrafoMostrar', {
-        'titulo': fields.String(required=False, description='titulo de la seccion o parrafo'),
+        'id' : fields.Integer,
+        'titulo': fields.String,
         'texto_html': fields.String
     })
 
@@ -98,8 +120,16 @@ class PoliticaDto:
         'fecha': fields.Date(required=True, description='Fecha en la cual fue publicada la politica de privacidad')
     })
 
+    politicaConsultar = api.model('politicaConsultar', {
+        'id' : fields.Integer,
+        'nombre': fields.String,
+        'url': fields.String,
+        'fecha': fields.Date
+
+    })
+
     politicaMostrar = api.model('PoliticaMostrar', {
-        'nombre': fields.String(required=True, description='Nombre de la empresa o compania'),
+        'nombre': fields.String,
         'url': fields.String,
         'fecha': fields.String,
         'parrafos': fields.List(fields.Nested(ParrafoDto.parrafoMostrar))
@@ -115,6 +145,11 @@ class PoliticaDto:
         'politica_id': fields.Integer(required=True),
         'politica_nombre': fields.String(required=True),
         'progreso': fields.Float(required=True)
+    })
+
+    politicaConsultarParrafos = api.model('politicaConsultarParrafos', {
+        'nombre': fields.String,
+        'parrafos': fields.List(fields.Nested(ParrafoDto.parrafoMostrar))
     })
 
 
@@ -191,6 +226,16 @@ class ValorDto:
         'id': fields.Integer(required=True, description='id del atributo'),
         'descripcion': fields.String(required=True, description='nombre del valor'),
         'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
+    })
+
+    valorConsultarCompleto = api.model('valorConsultarCompleto', {
+        'id': fields.Integer,
+        'descripcion': fields.String,
+        'color_primario': fields.String,
+        'atributo_id': fields.Integer,
+        'atributo_descripcion': fields.String,
+        'tratamiento_id': fields.Integer,
+        'tratamiento_descripcion': fields.String
     })
 
 

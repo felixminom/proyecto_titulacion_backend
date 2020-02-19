@@ -111,6 +111,30 @@ def obtener_valor(id):
         return marshal(valor, _valorConsultar), 201
 
 
+def obtener_valor_completo(valor_id):
+    valor_aux = db.session.query(Valor, Atributo, Tratamiento)\
+        .outerjoin(Atributo, Valor.atributo_id == Atributo.id)\
+        .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)\
+        .filter(Valor.id == valor_id).first()
+    if not valor_aux:
+        respose_object = {
+            'estatus': 'fallido',
+            'mensaje': 'No exite atributo'
+        }
+        return respose_object,404
+    else:
+        print(valor_aux[2])
+        valor = ValorConsultar
+        valor.id = valor_aux[0].id
+        valor.descripcion = valor_aux[0].descripcion
+        valor.tratamiento_id = valor_aux[2].id
+        valor.tratamiento_descripcion = valor_aux[2].descripcion
+        valor.atributo_id = valor_aux[1].id
+        valor.atributo_descripcion = valor_aux[1].descripcion
+        valor.color_primario = valor_aux[2].color_tratamiento.codigo
+        return marshal(valor, ValorDto.valorConsultarCompleto), 201
+
+
 def guardar_cambios(data):
     db.session.add(data)
     db.session.commit()

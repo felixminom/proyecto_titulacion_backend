@@ -14,7 +14,7 @@ def consultar_modulos_hijos(rolUsuario):
     i = 0
     usuario.modulos.clear()
     for modulo in rol_usuario.modulos:
-        modulo_aux = ModuloConsultarHijos(modulo.nombre, modulo.icono, modulo.hijos)
+        modulo_aux = ModuloConsultarHijos(modulo.nombre, modulo.icono, modulo.path, modulo.hijos)
         usuario.modulos.insert(i, modulo_aux)
         i += 1
     usuario.rol_usuario = rol_usuario.nombre

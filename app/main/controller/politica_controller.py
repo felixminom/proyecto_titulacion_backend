@@ -3,7 +3,7 @@ from flask import request
 from ..util.dto import PoliticaDto
 from..service.politica_service import previsualizar_politica, guardar_politica, guardar_usuario_politica, \
     actualizar_usuario_politica, politica_lista_para_consolidar_api, consultar_politicas_anotador_no_finalizadas,\
-    consultar_politicas_consolidador_no_finalizadas
+    consultar_politicas_consolidador_no_finalizadas, consultar_politica_parrafos, consultar_politicas
 
 api = PoliticaDto.api
 _politicaUsuarioGuardar = PoliticaDto.politicaUsuarioGuardar
@@ -15,6 +15,11 @@ class Politica(Resource):
     @api.doc('Crear nueva politica de privacidad')
     def post(self):
         return guardar_politica()
+
+    @api.response(201, 'Lista de politicas')
+    @api.doc('Consultar politicas de privacidad existentes')
+    def get(self):
+        return consultar_politicas()
 
 
 @api.route('/Previsualizacion')
@@ -68,4 +73,12 @@ class Politica(Resource):
     def get(self, administrador_id):
         return consultar_politicas_consolidador_no_finalizadas(administrador_id)
 
+
+@api.route('/Parrafos/<politica_id>')
+@api.param('politica_id', 'Id de la poitica')
+@api.response(404, 'Politica no encontrada')
+class Politica(Resource):
+    @api.doc('Consultar parrafospolitica')
+    def get(self, politica_id):
+        return consultar_politica_parrafos(politica_id)
 

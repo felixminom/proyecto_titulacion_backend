@@ -29,7 +29,7 @@ class TratamientoList(Resource):
 
 @api.route('/TratamientosCompletos')
 class TratamientoCompleto(Resource):
-    @api.doc('Lista de tratamientos')
+    @api.doc('Lista de tratamientos completos')
     @api.marshal_list_with(_tratamientoCompleto)
     def get(self):
         """Lista de tratamientos completos"""

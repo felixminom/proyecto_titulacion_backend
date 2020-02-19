@@ -12,4 +12,4 @@ class Tratamiento(db.Model):
     atributos = db.relationship("Atributo")
 
     def __repr__(self):
-        return "<Tratamiento '{}'>".format(self)
+        return "<Tratamiento '{}'>".format(self.descripcion)

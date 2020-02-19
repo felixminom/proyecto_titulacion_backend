@@ -1,10 +1,10 @@
 from app.main import db
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
-from app.main.model.usuario import Usuario
 from flask import request
 from flask_restplus import marshal
 from werkzeug.utils import secure_filename
-from ..util.clases_auxiliares import PoliticaMostrar, ParrafoMostrar, ParrafoGuardar, PoliticaAnotadorNoFinalizadas
+from ..util.clases_auxiliares import PoliticaMostrar, ParrafoMostrar, ParrafoGuardar, PoliticaAnotadorNoFinalizadas, \
+    PoliticaConsultarParrafos
 from ..util.dto import PoliticaDto
 from ..service.parrafo_service import guardar_parrafo, consultar_num_parrafos_politica
 from ..service.anotacion_service import consultar_ultima_anotacion_usuario_politica
@@ -252,6 +252,29 @@ def guardar_politica():
             'mensaje': 'El nombre de la politica ya existe'
         }
         return respuesta, 409
+
+
+def consultar_politicas():
+    politicas = Politica.query.all()
+    return marshal(politicas, PoliticaDto.politicaConsultar), 201
+
+
+def consultar_politica_parrafos(politica_id):
+    politica_parrafos = PoliticaConsultarParrafos
+    politica_parrafos.parrafos = []
+    parrafos_consulta = (db.session.query(Politica).filter(Politica.id == politica_id).all())
+
+    if not parrafos_consulta:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe la politica'
+        }
+        return respuesta, 409
+    else:
+        politica_parrafos.nombre = parrafos_consulta[0].nombre
+        for parrafo in parrafos_consulta[0].parrafos:
+            politica_parrafos.parrafos.append(parrafo)
+        return marshal(politica_parrafos, PoliticaDto.politicaConsultarParrafos), 201
 
 
 def consultar_politicas_consolidador_no_finalizadas(consolidador_id):

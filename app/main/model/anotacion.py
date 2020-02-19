@@ -16,4 +16,4 @@ class Anotacion(db.Model):
     permite = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return 'anotacion: {}'.format(self.texto)
+        return '<anotacion: {}>'.format(self.id, self.texto)
