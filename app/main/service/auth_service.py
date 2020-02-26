@@ -25,7 +25,7 @@ class Auth:
     @staticmethod
     def login_usuario(data):
         try:
-            usuario_aux = Usuario.query.filter_by(email=data['email']).first()
+            usuario_aux = Usuario.query.filter_by(email=data['email'], activo=True).first()
             if usuario_aux and usuario_aux.comparar_clave(data['clave']):
                 usuario.id = usuario_aux.id
                 usuario.email = usuario_aux.email

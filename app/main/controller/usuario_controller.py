@@ -2,10 +2,12 @@ from flask import request
 from flask_restplus import Resource
 
 from ..util.dto import UsuarioDto
-from ..service.usuario_service import guardar_nuevo_usuario, obtnener_todos_usuarios, obtener_un_usuario
+from ..service.usuario_service import guardar_nuevo_usuario, obtnener_todos_usuarios, obtener_un_usuario, \
+    editar_usuario, eliminar_usuario, obtener_anotadores_activos, obtener_administradores_activos
 
 api = UsuarioDto.api
 _usuario = UsuarioDto.usuario
+_usuarioEditar = UsuarioDto.usuarioEditar
 _usuarioConsultar = UsuarioDto.usuarioConsultar
 
 
@@ -24,6 +26,45 @@ class ListaUsuarios(Resource):
         """Crear un nuevo usuario"""
         data = request.json
         return guardar_nuevo_usuario(data=data)
+
+    @api.response(201, 'Usuario editado exitosamente')
+    @api.doc('Editar un usuario')
+    @api.expect(_usuarioEditar, validate=True)
+    def patch(self):
+        """Crear un nuevo usuario"""
+        data = request.json
+        return editar_usuario(data=data)
+
+
+@api.route('/<id>', methods=["DELETE"])
+@api.param('id', 'Identificador del usuario')
+@api.response(404,'Usuario no encontrado')
+class Usuario(Resource):
+    @api.response(201, 'Usuario eliminado exitosamente')
+    @api.doc('Eliminar un usuario')
+    def delete(self, id):
+        """Eliminar un usuario"""
+        return eliminar_usuario(id=id)
+
+
+@api.route('/AnotadoresActivos')
+@api.response(404, 'Anotadores no encontrados')
+class Usuario(Resource):
+    @api.response(201, 'Anotadores')
+    @api.doc('Obtener anotadores para asignar')
+    def get(self):
+        """Obtener anotadores"""
+        return obtener_anotadores_activos()
+
+
+@api.route('/AdministradoresActivos')
+@api.response(404, 'Administradores no encontrados')
+class Usuario(Resource):
+    @api.response(201, 'Administradores')
+    @api.doc('Obtener administradores para asignar')
+    def get(self):
+        """Obtener Administradores"""
+        return obtener_administradores_activos()
 
 
 @api.route('/<email>')

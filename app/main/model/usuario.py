@@ -28,7 +28,7 @@ class Usuario(db.Model):
         self.clave_hash = flask_bcrypt.generate_password_hash(clave).decode('utf-8')
 
     def comparar_clave(self,clave):
-        return flask_bcrypt.check_password_hash(self.clave_hash,clave)
+        return flask_bcrypt.check_password_hash(self.clave_hash, clave)
 
     @staticmethod
     def codificar_auth_token(usuario_id):
@@ -69,7 +69,6 @@ class Usuario(db.Model):
             return 'Firma expirada, por favor inicie sesion nuevamente'
         except jwt.InvalidTokenError as e:
             return '{}'.format(e)
-           #return 'Token invalido, inicie sesion'
 
     def __repr__(self):
         return "<User '{}'>".format(self.email)

@@ -1,5 +1,6 @@
 from app.main import db
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
+from flask_sqlalchemy import SQLAlchemy
 from flask import request
 from flask_restplus import marshal
 from werkzeug.utils import secure_filename
@@ -76,19 +77,9 @@ def error_directorio():
     try:
         os.mkdir(CARPETA_SUBIDA)
     except OSError:
-        respuesta = {
-            'estado': 'fallido',
-            'mensaje': 'error creando directorio',
-            'error': OSError.strerror
-        }
-        return respuesta, 409
+        return False
     else:
-        respuesta = {
-            'estado': 'exito',
-            'mensaje': 'carpeta creada',
-            'error': OSError.strerror
-        }
-        return respuesta, 201
+        return True
 
 
 def llenar_politica_html(parrafos):
@@ -119,7 +110,6 @@ def llenar_politica_html(parrafos):
 
 
 def previsualizar_politica():
-
     if not politica_existe_peticion():
         respuesta = {
             'estado': 'fallido',
@@ -181,20 +171,15 @@ def guardar_politica():
     politica_url = Politica.query.filter_by(url=respuesta.get('url')).first()
     if not politica:
         if not politica_url:
+            fecha_aux = respuesta.get('fecha').split('T')[0]
             nueva_politica = Politica(
                 nombre=respuesta.get('nombre'),
                 url=respuesta.get('url'),
-                fecha=respuesta.get('fecha'),
+                fecha=fecha_aux,
+                asignada=False
             )
 
-            try:
-                guardar_cambios(nueva_politica)
-            except:
-                respuesta = {
-                    'estado': 'fallido',
-                    'mesaje': 'No se ha podido crear la politica'
-                }
-                return respuesta, 409
+            guardar_cambios(nueva_politica)
 
 
             #GUARDAR PARRAFOS
@@ -253,6 +238,36 @@ def guardar_politica():
         }
         return respuesta, 409
 
+
+def editar_politica(data):
+    politica = Politica.query.filter_by(id=data['id']).first()
+
+    if not politica:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe politica de privacidad'
+        }
+        return respuesta, 409
+    else:
+        politica.nombre = data['nombre']
+        politica.url = data['url']
+        politica.fecha = data['fecha']
+
+        try:
+            guardar_cambios(politica)
+        except:
+            respuesta = {
+                'estado': 'fallido',
+                'mensaje': 'Error editando politica'
+            }
+            return respuesta, 409
+        else:
+            respuesta = {
+                'estado': 'exito',
+                'mensaje': 'Politca edita con exita'
+            }
+            return respuesta, 201
+            
 
 def consultar_politicas():
     politicas = Politica.query.all()

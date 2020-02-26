@@ -7,9 +7,10 @@ class ModuloConsultarHijos:
 
 
 class UsuarioConsultar:
-    def __init__(self, id, email, rol_usuario, activo, entrenamiento):
+    def __init__(self, id, email, rol_usuario_id, rol_usuario, activo, entrenamiento):
         self.id = id
         self.email = email
+        self.rol_usuario_id = rol_usuario_id
         self.rol_usuario = rol_usuario
         self.activo = activo
         self.entrenamiento = entrenamiento

@@ -121,10 +121,11 @@ class PoliticaDto:
     })
 
     politicaConsultar = api.model('politicaConsultar', {
-        'id' : fields.Integer,
+        'id': fields.Integer,
         'nombre': fields.String,
         'url': fields.String,
-        'fecha': fields.Date
+        'fecha': fields.Date,
+        'asignada': fields.Boolean
 
     })
 
@@ -183,17 +184,30 @@ class UsuarioDto:
     api = Namespace('Usuario', description='Operaciones relacionadas a usuarios ')
     usuario = api.model('usuario',{
         'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
-        'clave': fields.String(required=True, description='clave para la cuenta del usuario'),
         'rol_usuario': fields.Integer(required=True, description='rol de usuario'),
         'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
     })
 
-    usuarioConsultar = api.model('usuarioConsultar', {
-        'id': fields.Integer(description='id de usuario'),
+    usuarioEditar = api.model('usuarioEditar', {
+        'id': fields.Integer(required=True),
         'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
-        'rol_usuario': fields.String(required=True, description='rol de usuario'),
-        'activo': fields.Boolean(description='Usuario activo/inactivo'),
-        'entrenamiento': fields.Boolean(description='Usuario en entrenamiento?')
+        'rol_usuario': fields.Integer(required=True, description='rol de usuario'),
+        'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?'),
+        'activo': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
+    })
+
+    usuarioConsultarAsignacion = api.model('usuarioConsultarAsignacion', {
+        'id': fields.Integer,
+        'email': fields.String
+    })
+
+    usuarioConsultar = api.model('usuarioConsultar', {
+        'id': fields.Integer,
+        'email': fields.String,
+        'rol_usuario_id': fields.Integer,
+        'rol_usuario': fields.String,
+        'activo': fields.Boolean,
+        'entrenamiento': fields.Boolean
     })
 
     usuarioConsultarLogin = api.model('usuarioConsultarLogin',{
