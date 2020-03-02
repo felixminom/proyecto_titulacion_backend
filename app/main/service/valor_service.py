@@ -20,18 +20,54 @@ def guardar_valor(valor):
             atributo_id= valor['atributo_id']
         )
         guardar_cambios(nuevo_valor)
-        response_object = {
+        respuesta = {
             'estado': 'exito',
             'mensaje': 'Atributo creado exitosamente'
         }
-        return response_object, 201
+        return respuesta, 201
     else:
-        response_object = {
+        respuesta = {
             'estado': 'fallido',
             'mensaje': 'La descripcion del valor ya existe para este atributo'
         }
-        return response_object, 409
+        return respuesta, 409
 
+
+def editar_valor(data):
+    valor = Valor.query.filter_by(id=data['id']).first()
+    if not valor:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el valor'
+        }
+        return respuesta, 409
+    else:
+        valor.descripcion = data['descripcion']
+        guardar_cambios(valor)
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Atributo editado exitosamente'
+        }
+        return respuesta, 201
+
+
+def eliminar_valor(id):
+    try:
+        Valor.query.filter_by(id=id).delete()
+    except:
+        db.session.rollback()
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el valor'
+        }
+        return respuesta, 409
+    else:
+        db.session.commit()
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Atributo eliminado exitosamente'
+        }
+        return respuesta, 201
 
 def obtener_todos_valores():
     valores = [ValorConsultar]
@@ -64,14 +100,18 @@ def obtener_valores_atributo(atributo_id):
     i = 0
     valores.clear()
     if not valores_consultar:
-        return 404
+        respuesta = {
+            'estado': 'Fallido',
+            'mensaje': 'No existen valores'
+        }
+        return respuesta, 404
     else:
         for item in valores_consultar:
             valores.insert(i, item[0])
             valores[i].tratamiento_id = item[2].id
             valores[i].color_primario = item[2].color_tratamiento.codigo
             i += 1
-        return valores, 201
+        return marshal(valores, ValorDto.valorConsultar) , 201
 
 
 def obtener_valores_atributo_completo(atributo_id):
@@ -82,6 +122,7 @@ def obtener_valores_atributo_completo(atributo_id):
                          .filter(Valor.atributo_id == atributo_id).all())
     i = 0
     valores.clear()
+
     for item in valores_consultar:
         valores.insert(i, item[0])
         valores[i].tratamiento_id = item[2].id
@@ -96,11 +137,11 @@ def obtener_valor(id):
         .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)\
         .filter(Valor.id == id).first()
     if not valor_aux:
-        respose_object = {
+        respuesta = {
             'estatus': 'fallido',
             'mensaje': 'No exite atributo'
         }
-        return respose_object,404
+        return respuesta,404
     else:
         valor = ValorConsultar
         valor.id = valor_aux[0].id
@@ -117,13 +158,12 @@ def obtener_valor_completo(valor_id):
         .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)\
         .filter(Valor.id == valor_id).first()
     if not valor_aux:
-        respose_object = {
+        respuesta = {
             'estatus': 'fallido',
             'mensaje': 'No exite atributo'
         }
-        return respose_object,404
+        return respuesta, 404
     else:
-        print(valor_aux[2])
         valor = ValorConsultar
         valor.id = valor_aux[0].id
         valor.descripcion = valor_aux[0].descripcion

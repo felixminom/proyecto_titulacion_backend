@@ -104,7 +104,6 @@ def editar_usuario(data):
 
 
 def eliminar_usuario(id):
-    print(id)
     try:
         Usuario.query.filter_by(id=id).delete()
     except:

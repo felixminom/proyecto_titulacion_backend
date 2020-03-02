@@ -18,14 +18,46 @@ import datetime
 _anotacionesConsultar = AnotacionDto.anotacionConsultar
 
 
-def consultar_inconsistencia_antes_anotar(data):
+def consultar_inconsistencia_consolidacion(anotacion_actual, parrafo_id):
+    anotaciones_tuplas = []
+    anotaciones_tuplas.append(anotacion_actual)
+    usuarios = (db.session.query(Parrafo, Politica, PoliticaUsuarioRelacion)
+                .outerjoin(Politica, Parrafo.politica_id == Politica.id)
+                .outerjoin(PoliticaUsuarioRelacion, Politica.id == PoliticaUsuarioRelacion.politica_id)
+                .filter(Parrafo.id == parrafo_id,
+                        PoliticaUsuarioRelacion.consolidar == False).all())
+
+    for usuario in usuarios:
+        print(usuario[2].usuario_id)
+        anotaciones_parrafo = (db.session.query(Anotacion, Valor, Atributo, Tratamiento, Parrafo)
+                                .outerjoin(Valor, Anotacion.valor_id == Valor.id)
+                                .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
+                                .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
+                                .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
+                                .filter(Parrafo.id == parrafo_id,
+                                        Anotacion.usuario_id == usuario[2].usuario_id,
+                                        Anotacion.consolidar == False).all())
+        i = 0
+        anotacion_usuario = []
+        for anotacion in anotaciones_parrafo:
+            tupla = (anotacion[3].id, anotacion[2].id, anotacion[1].id, anotacion[0].permite)
+            anotacion_usuario.insert(i, tupla)
+            i += 1
+        anotaciones_tuplas.append(anotacion_usuario)
+        print(anotaciones_tuplas)
+    inconsistencia = not all(x == anotaciones_tuplas[0] for x in anotaciones_tuplas)
+
+    return inconsistencia
+
+
+def consultar_inconsistencia_notificacion(data):
     valor_consulta = obtener_valor(data['valor_id'])
 
     tupla_anotacion = (valor_consulta[0].get('tratamiento_id'),
                            valor_consulta[0].get('atributo_id'),
                            valor_consulta[0].get('id'),
                            data['permite'])
-    print(consultar_inconsistencia_antes_anotar(tupla_anotacion, data['parrafo_id']))
+    print(consultar_inconsistencia_notificacion(tupla_anotacion, data['parrafo_id']))
 
 
 def guardar_anotacion(data):
@@ -40,17 +72,81 @@ def guardar_anotacion(data):
         permite=data['permite']
     )
     guardar_cambios(nueva_anotacion)
-    response_object = {
+    respuesta = {
         'estado': 'exito',
         'mensaje': 'Anotacion registrada exitosamente.'
     }
+    return respuesta, 201
 
-    return response_object, 201
+
+def editar_anotacion(data):
+    anotacion = Anotacion.query.filter_by(id=data['id']).first()
+    if not anotacion:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'Error editando anotacion'
+        }
+        return respuesta, 409
+    else:
+        anotacion.texto = data['texto']
+        anotacion.texto_html = data['texto_html']
+        anotacion.comentario = data['comentario']
+        guardar_cambios(anotacion)
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Anotacion editada exitosamente.'
+        }
+        return respuesta, 201
+
+
+def eliminar_anotacion(id):
+    try:
+        Anotacion.query.filter_by(id=id).delete()
+    except:
+        db.session.rollback()
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'Error eliminando anotacion'
+        }
+        return respuesta, 409
+    else:
+        db.session.commit()
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Anotacion eliminada exitosamente.'
+        }
+        return respuesta, 201
 
 
 def obtener_anotaciones_parrafo(parrafo_id):
     anotaciones = Anotacion.query.filter_by(parrafo_id=parrafo_id).all()
     return anotaciones
+
+
+def obtener_total_anotaciones_parrafo_anotador(data):
+    anotaciones_anotador_total = Anotacion.query.filter_by(usuario_id=data['usuario_id'],
+                                                           parrafo_id=data['parrafo_id'],
+                                                           consolidar=False).count()
+    respuesta = {
+        'estado': 'exito',
+        'num_anotaciones': anotaciones_anotador_total
+    }
+    return respuesta, 201
+
+
+def obtener_anotaciones_parrafo_anotador(data):
+    anotaciones_anotador = Anotacion.query.filter_by(usuario_id=data['usuario_id'],
+                                                     parrafo_id=data['parrafo_id'],
+                                                     consolidar=False).all()
+    if not anotaciones_anotador:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existen anotaciones'
+        }
+        return respuesta, 409
+
+    else:
+        return anotaciones_anotador, 201
 
 
 def obtener_anotaciones_politica_anotadores(politica_id):
@@ -84,6 +180,34 @@ def obtener_anotaciones_politica_anotadores(politica_id):
         return marshal(anotaciones, _anotacionesConsultar), 201
 
 
+def obtener_anotaciones_parrafo_anotador(data):
+    anotaciones = [AnotacionConsultarAnotador]
+    anotaciones_consultar = (db.session.query(Anotacion, Valor, Atributo, Tratamiento)
+                             .outerjoin(Valor, Anotacion.valor_id == Valor.id)
+                             .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
+                             .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
+                             .filter(Anotacion.parrafo_id == data['parrafo_id'],
+                                     Anotacion.usuario_id == data['usuario_id'],
+                                     Anotacion.consolidar == False).all())
+    anotaciones.clear()
+    i = 0
+    if not anotaciones_consultar:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'no existen anotaciones para este parrafo'
+        }
+        return respuesta, 404
+    else:
+        for item in anotaciones_consultar:
+            anotaciones.insert(i, item[0])
+            anotaciones[i].valor_descripcion = item[1].descripcion
+            anotaciones[i].atributo_descripcion = item[2].descripcion
+            anotaciones[i].tratamiento_descripcion = item[3].descripcion
+            anotaciones[i].color_primario = item[3].color_tratamiento.codigo
+            i += 1
+        return marshal(anotaciones, AnotacionDto.anotacionConsultarAnotadores), 201
+
+
 def obtener_anotaciones_parrafo_anotadores(parrafo_id):
     anotaciones = [AnotacionConsultar]
     anotaciones_consultar = (db.session.query(Anotacion, Valor, Atributo, Tratamiento, Usuario)
@@ -91,11 +215,15 @@ def obtener_anotaciones_parrafo_anotadores(parrafo_id):
                              .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
                              .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
                              .outerjoin(Usuario, Anotacion.usuario_id == Usuario.id)
-                             .filter(Anotacion.parrafo_id == parrafo_id, Usuario.rol_usuario == 2).all())
+                             .filter(Anotacion.parrafo_id == parrafo_id, Anotacion.consolidar ==False).all())
     anotaciones.clear()
     i = 0
     if not anotaciones_consultar:
-        return 404
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'no existen anotaciones para este parrafo'
+        }
+        return respuesta, 404
     else:
         for item in anotaciones_consultar:
             anotaciones.insert(i, item[0])
@@ -106,7 +234,7 @@ def obtener_anotaciones_parrafo_anotadores(parrafo_id):
             anotaciones[i].tratamiento_descripcion = item[3].descripcion
             anotaciones[i].usuario_nombre = item[4].email
             i += 1
-        return anotaciones, 201
+        return marshal(anotaciones, AnotacionDto.anotacionConsultar), 201
 
 
 def obtener_anotaciones_politica_consolidador(parrafo_id):
@@ -196,38 +324,6 @@ def consultar_inconsistencia_anotador(politica_id, secuencia, usuarios):
             i += 1
         anotaciones_tuplas.append(anotacion_usuario)
 
-    inconsistencia = not all(x == anotaciones_tuplas[0] for x in anotaciones_tuplas)
-
-    return inconsistencia
-
-
-def consultar_inconsistencia_antes_anotar(anotacion_actual, parrafo_id):
-    anotaciones_tuplas = []
-    anotaciones_tuplas.append(anotacion_actual)
-    usuarios = (db.session.query(Parrafo, Politica, PoliticaUsuarioRelacion)
-                .outerjoin(Politica, Parrafo.politica_id == Politica.id)
-                .outerjoin(PoliticaUsuarioRelacion, Politica.id == PoliticaUsuarioRelacion.politica_id)
-                .filter(Parrafo.id == parrafo_id,
-                        PoliticaUsuarioRelacion.consolidar == False).all())
-
-    for usuario in usuarios:
-        print(usuario[2].usuario_id)
-        anotaciones_parrafo = (db.session.query(Anotacion, Valor, Atributo, Tratamiento, Parrafo)
-                                .outerjoin(Valor, Anotacion.valor_id == Valor.id)
-                                .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
-                                .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
-                                .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
-                                .filter(Parrafo.id == parrafo_id,
-                                        Anotacion.usuario_id == usuario[2].usuario_id,
-                                        Anotacion.consolidar == False).all())
-        i = 0
-        anotacion_usuario = []
-        for anotacion in anotaciones_parrafo:
-            tupla = (anotacion[3].id, anotacion[2].id, anotacion[1].id, anotacion[0].permite)
-            anotacion_usuario.insert(i, tupla)
-            i += 1
-        anotaciones_tuplas.append(anotacion_usuario)
-        print(anotaciones_tuplas)
     inconsistencia = not all(x == anotaciones_tuplas[0] for x in anotaciones_tuplas)
 
     return inconsistencia

@@ -2,10 +2,11 @@ from flask import request
 from flask_restplus import Resource
 from ..util.dto import AtributoDto
 from ..service.atributo_services import guardar_atributo, obtener_todos_atributos, obtener_atributo, \
-    obtener_atributos_tratamiento
+    obtener_atributos_tratamiento, editar_atributo, eliminar_atributo
 
 api = AtributoDto.api
 _atributo = AtributoDto.atributo
+_atributoEditar = AtributoDto.atributoEditar
 _atributoConsultar = AtributoDto.atributoConsultar
 
 
@@ -25,6 +26,14 @@ class Atributo(Resource):
         data = request.json
         return guardar_atributo(atributo=data)
 
+    @api.response(201, 'Atributo editado exitosamente')
+    @api.doc('Editar atributo de un tratamiento')
+    @api.expect(_atributoEditar, validate=True)
+    def patch(self):
+        """Editar atributo de un tratamiento"""
+        data = request.json
+        return editar_atributo(data)
+
 
 @api.route('/Tratamiento/<tratamiento_id>')
 @api.param('tratamiento_id', 'id del tratamiento')
@@ -40,11 +49,14 @@ class AtributoTratamientoId(Resource):
 @api.param('id','id de atributo')
 @api.response(404, 'Atributo no encontrado')
 class AtributoId(Resource):
-    @api.doc('Obtener tratamiento')
-    #@api.marshal_with(_atributoConsultar)
+    @api.doc('Obtener atributo')
     def get(self, id):
         """obtener atributos por id"""
         atributo = obtener_atributo(id)
         return atributo
 
+    @api.doc('Eliminar atributo')
+    def delete(self, id):
+        """Eliminar atributo"""
+        return eliminar_atributo(id)
 

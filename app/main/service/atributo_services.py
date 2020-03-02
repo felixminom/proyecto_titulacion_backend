@@ -20,17 +20,54 @@ def guardar_atributo(atributo):
             tratamiento_id= atributo['tratamiento_id']
         )
         guardar_cambios(nuevo_atributo)
-        response_object = {
+        respuesta = {
             'estado': 'exito',
             'mensaje': 'Atributo creado exitosamente'
         }
-        return response_object, 201
+        return respuesta, 201
     else:
-        response_object = {
+        respuesta = {
             'estado': 'fallido',
             'mensaje': 'La descripcion del atributo ya existe para este tratamiento'
         }
-        return response_object, 409
+        return respuesta, 409
+
+
+def editar_atributo(data):
+    atributo = Atributo.query.filter_by(id=data['id']).first()
+    if not atributo:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el atributo'
+        }
+        return respuesta, 409
+    else:
+        atributo.descripcion = data['descripcion']
+        guardar_cambios(atributo)
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Atributo editado exitosamente'
+        }
+        return respuesta, 201
+
+
+def eliminar_atributo(id):
+    try:
+        Atributo.query.filter_by(id=id).delete()
+    except:
+        db.session.rollback()
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el atributo'
+        }
+        return respuesta, 409
+    else:
+        db.session.commit()
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Atributo editado exitosamente'
+        }
+        return respuesta, 201
 
 
 def obtener_todos_atributos():

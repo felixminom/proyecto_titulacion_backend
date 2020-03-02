@@ -1,6 +1,6 @@
 from app.main import db
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
-from flask_sqlalchemy import SQLAlchemy
+from app.main.model.parrafo import Parrafo
 from flask import request
 from flask_restplus import marshal
 from werkzeug.utils import secure_filename
@@ -160,7 +160,34 @@ def previsualizar_politica():
             }
 
             return respuesta, 201
+        else:
+            os.mkdir(CARPETA_SUBIDA)
 
+            archivo.filename = archivo.filename.strip().replace(" ", "")
+            nombre_archivo = secure_filename(archivo.filename)
+
+            try:
+                archivo.save(os.path.join(CARPETA_SUBIDA, nombre_archivo))
+            except:
+                respuesta = {
+                    'estado': 'fallido',
+                    'mesaje': 'Existe un problema con la creacion del archivo en el servidor'
+                }
+                return respuesta, 409
+
+            politica = abrir_politica(nombre_archivo)
+            parrafos = separar_parrafos_principales(politica)
+            llenar_politica_mostrar()
+            json = llenar_politica_html(parrafos)
+            borrar_politica_previsualizacion(archivo)
+
+            respuesta = {
+                'estado': 'exito',
+                'mensaje': 'politica creada',
+                'politica': marshal(json, PoliticaDto.politicaMostrar)
+            }
+
+            return respuesta, 201
     else:
         error_directorio()
 
@@ -168,9 +195,7 @@ def previsualizar_politica():
 def guardar_politica():
     respuesta = request.form.to_dict()
     politica = Politica.query.filter_by(nombre=respuesta.get('nombre')).first()
-    politica_url = Politica.query.filter_by(url=respuesta.get('url')).first()
     if not politica:
-        if not politica_url:
             fecha_aux = respuesta.get('fecha').split('T')[0]
             nueva_politica = Politica(
                 nombre=respuesta.get('nombre'),
@@ -218,18 +243,12 @@ def guardar_politica():
                         guardar_parrafo(parrafo_aux)
                         i += 1
 
+                    borrar_politica_previsualizacion(archivo)
                     respuesta = {
                         'estado': 'exito',
                         'mesaje': 'Politica cargada con exito'
                     }
                     return respuesta, 201
-
-        else:
-            respuesta = {
-                'estado': 'fallido',
-                'mensaje': 'La url politica ya existe'
-            }
-            return respuesta, 409
 
     else:
         respuesta = {
@@ -241,7 +260,6 @@ def guardar_politica():
 
 def editar_politica(data):
     politica = Politica.query.filter_by(id=data['id']).first()
-
     if not politica:
         respuesta = {
             'estado': 'fallido',
@@ -249,9 +267,10 @@ def editar_politica(data):
         }
         return respuesta, 409
     else:
+        fecha_aux = data['fecha'].split('T')[0]
         politica.nombre = data['nombre']
         politica.url = data['url']
-        politica.fecha = data['fecha']
+        politica.fecha = fecha_aux
 
         try:
             guardar_cambios(politica)
@@ -267,7 +286,45 @@ def editar_politica(data):
                 'mensaje': 'Politca edita con exita'
             }
             return respuesta, 201
-            
+
+
+def eliminar_politica(id):
+    try:
+        Parrafo.query.filter_by(politica_id=id).delete()
+        Politica.query.filter_by(id=id).delete()
+    except:
+        db.session.rollback()
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'Error eliminando politica'
+        }
+        return respuesta, 409
+    else:
+        db.session.commit()
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Politica eliminada con exito'
+        }
+        return respuesta, 201
+
+
+def actualizar_politica_asignada(data):
+    politica_aux = Politica.query.filter_by(id=data['id']).first()
+    if not politica_aux:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'Error actualizando politica asignada'
+        }
+        return respuesta, 409
+    else:
+        politica_aux.asignada = True
+        guardar_cambios(politica_aux)
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Politica asignada actualizado con exito'
+        }
+        return respuesta, 201
+
 
 def consultar_politicas():
     politicas = Politica.query.all()
@@ -410,23 +467,6 @@ def politica_lista_para_consolidar(politica_id):
             else:
                 listo = False
         return listo
-
-
-def politica_lista_para_consolidar_api(politica_id):
-    listo = politica_lista_para_consolidar(politica_id)
-    if listo == "NO":
-        respuesta = {
-            "estado": "exito",
-            "mensaje": "No existe la politica",
-        }
-        return respuesta, 409
-    else:
-        respuesta = {
-            "estado": "exito",
-            "mensaje": "Existe la politica",
-            "Consolidar": listo
-        }
-        return respuesta, 201
 
 
 def guardar_cambios(data):

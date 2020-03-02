@@ -3,12 +3,13 @@ from flask_restplus import Resource
 
 from ..util.dto import ValorDto
 from ..service.valor_service import guardar_valor, obtener_valor, obtener_todos_valores, obtener_valores_atributo, \
-    obtener_valor_completo
+    obtener_valor_completo, editar_valor, eliminar_valor
 
 
 api = ValorDto.api
 _valor = ValorDto.valor
 _valorConsultar = ValorDto.valorConsultar
+_valorEditar = ValorDto.valorEditar
 
 
 @api.route('/')
@@ -27,13 +28,20 @@ class Valor(Resource):
         data = request.json
         return guardar_valor(valor=data)
 
+    @api.response(201, 'Valor editado exitosamente')
+    @api.doc('Editar descripcion de valor')
+    @api.expect(_valorEditar, validate=True)
+    def patch(self):
+        """Editar valor"""
+        data = request.json
+        return editar_valor(data=data)
+
 
 @api.route('/Atributo/<atributo_id>')
 @api.param('atributo_id', 'id del atributo')
 @api.response(404, 'No existen valores para este atributo')
 class ValorAtributoId(Resource):
     @api.doc('Obtener tratamiento')
-    @api.marshal_with(_valorConsultar)
     def get(self, atributo_id):
         """obtener valores por atributo"""
         return obtener_valores_atributo(atributo_id=atributo_id)
@@ -47,6 +55,11 @@ class ValorId(Resource):
     def get(self, id):
         """obtener valor por id"""
         return obtener_valor(id)
+
+    @api.doc('Eliminar valor por id')
+    def delete(self, id):
+        """obtener valor por id"""
+        return eliminar_valor(id)
 
 
 @api.route('/Completo/<id>')

@@ -2,10 +2,11 @@ from flask import request
 from flask_restplus import Resource
 from ..util.dto import TratamientoDto
 from ..service.tratamiento_service import guardar_tratamiento, obtener_todos_tratamientos, \
-    obtener_tratamientos_completos, obtener_un_tratamiento, editar_tratamiento
+    obtener_tratamientos_completos, obtener_un_tratamiento, editar_tratamiento, eliminar_tratamiento
 
 api = TratamientoDto.api
 _tratamiento = TratamientoDto.tratamiento
+_tratamientoEditar = TratamientoDto.tratamientoEditar
 _tratamientoConsultar = TratamientoDto.tratamientoConsultar
 _tratamientoCompleto = TratamientoDto.tratamientoCompleto
 
@@ -25,6 +26,14 @@ class TratamientoList(Resource):
         """Crea un nuevo tratamiento"""
         data = request.json
         return guardar_tratamiento(data=data)
+
+    @api.response(200, 'Edicion exitosa de tratamiento')
+    @api.doc('Editar tratamiento')
+    @api.expect(_tratamientoEditar, validate=True)
+    def patch(self):
+        "Edita el tratamiento por id"
+        data = request.json
+        return editar_tratamiento(data=data)
 
 
 @api.route('/TratamientosCompletos')
@@ -54,11 +63,11 @@ class Tratamiento(Resource):
         else:
             return tratamiento
 
-    @api.response(200, 'Edicion exitosa de tratamiento')
-    @api.doc('Editar tratamiento')
-    @api.expect(_tratamiento, validate=True)
-    def put(self, id):
-        "Edita el tratamiento por id"
-        data = request.json
-        return editar_tratamiento(data=data, id=id)
+
+
+    @api.response(200, 'Tratamiento eliminado con exito')
+    @api.doc('Eliminar tratamiento')
+    def delete(self, id):
+        "Eliminar tratamiento"
+        return eliminar_tratamiento(id=id)
 

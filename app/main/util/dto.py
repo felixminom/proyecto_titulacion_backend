@@ -55,7 +55,7 @@ class ModuloDto:
 
 
 class AnotacionDto:
-    api = Namespace('Anotacion',description='Operaciones relacionadas a anotaciones')
+    api = Namespace('Anotacion', description='Operaciones relacionadas a anotaciones')
     anotacion = api.model('anotacion', {
         'texto': fields.String(required=True),
         'texto_html': fields.String(required=True),
@@ -64,8 +64,7 @@ class AnotacionDto:
         'valor_id': fields.Integer(required=True),
         'usuario_id': fields.Integer(required=True),
         'consolidar' : fields.Boolean(required=True),
-        'permite': fields.Boolean(required=True),
-        'entrenamiento': fields.Boolean(required=True)
+        'permite': fields.Boolean(required=True)
     })
 
     anotacionConsultar = api.model('anotacionConsultar', {
@@ -83,11 +82,12 @@ class AnotacionDto:
     })
 
     anotacionConsultarAnotadores = api.model('anotacionConsultarAnotadores', {
+        'id' : fields.Integer,
         'tratamiento_descripcion': fields.String,
         'atributo_descripcion': fields.String,
         'valor_descripcion': fields.String,
         'color_primario': fields.String,
-        'texto_html': fields.String,
+        'texto': fields.String,
         'comentario': fields.String
     })
 
@@ -100,6 +100,11 @@ class AnotacionDto:
     anotacionesAnotadoresConsultarRespuesta = api.model('anotacionesAnotadoresConsultarRespuesta', {
         'inconsistencia': fields.Boolean,
         'usuarios_anotaciones': fields.List(fields.Nested(usuariosAnotaciones))
+    })
+
+    consultarTotalAnotaciones = api.model('consultarTotalAnotaciones', {
+        'usuario_id': fields.Integer(required=True),
+        'parrafo_id': fields.Integer(required=True)
     })
 
 
@@ -228,6 +233,11 @@ class ValorDto:
         'atributo_id': fields.Integer(requried=True, description='id del atributo padre'),
     })
 
+    valorEditar = api.model('valorEditar', {
+        'id': fields.Integer(required=True, description='id del atributo'),
+        'descripcion': fields.String(required=True, description='nombre del valor')
+    })
+
     valorConsultar = api.model('valorConsultar', {
         'id': fields.Integer(required=True, description='id del atributo'),
         'descripcion': fields.String(required=True, description='nombre del valor'),
@@ -257,14 +267,19 @@ class AtributoDto:
     api = Namespace('Atributo', description='Operaciones relacionadas a atributos de tratamientos de datos')
     atributo = api.model('atributo', {
         'descripcion': fields.String(required=True, description='nombre del atributo'),
-        'tratamiento_id': fields.String(requried=True, description='id del tratamiento padre')
+        'tratamiento_id': fields.Integer(requried=True, description='id del tratamiento padre')
+    })
+
+    atributoEditar = api.model('atributoEditar', {
+        'id': fields.Integer(required=True, description ='id del atributo'),
+        'descripcion': fields.String(required=True, description='nombre del atributo')
     })
 
     atributoConsultar = api.model('atributoConsultar', {
-        'id': fields.Integer(required=True, description ='id del atributo'),
-        'descripcion': fields.String(required=True, description='nombre del atributo'),
-        'tratamiento_id': fields.Integer(requried=True, description='id del tratamiento padre'),
-        'color_primario': fields.String(requried=True, description='codigo hexadecimal del color')
+        'id': fields.Integer,
+        'descripcion': fields.String,
+        'tratamiento_id': fields.Integer,
+        'color_primario': fields.String
     })
 
     atributoCompleto = api.model('atributoCompleto', {
@@ -283,9 +298,16 @@ class TratamientoDto:
         'color_primario': fields.Integer(required=True, description='id del color')
     })
 
+    tratamientoEditar = api.model('tratamientoEditar', {
+        'id': fields.Integer,
+        'descripcion': fields.String,
+        'color_primario': fields.Integer
+    })
+
     tratamientoConsultar = api.model('tratamientoConsultar', {
         'id': fields.Integer(required=False, description='id tratamiento'),
         'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
+        'color_id': fields.Integer,
         'color_primario': fields.String(required=True, description='Color del tratamiento para anotaciones')
     })
 

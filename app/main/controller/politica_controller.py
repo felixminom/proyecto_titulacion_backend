@@ -2,8 +2,9 @@ from flask_restplus import Resource
 from flask import request
 from ..util.dto import PoliticaDto
 from..service.politica_service import previsualizar_politica, guardar_politica, guardar_usuario_politica, \
-    actualizar_usuario_politica, politica_lista_para_consolidar_api, consultar_politicas_anotador_no_finalizadas,\
-    consultar_politicas_consolidador_no_finalizadas, consultar_politica_parrafos, consultar_politicas
+    actualizar_usuario_politica, consultar_politicas_anotador_no_finalizadas,\
+    consultar_politicas_consolidador_no_finalizadas, consultar_politica_parrafos, consultar_politicas, \
+    eliminar_politica, editar_politica, actualizar_politica_asignada
 
 api = PoliticaDto.api
 _politicaUsuarioGuardar = PoliticaDto.politicaUsuarioGuardar
@@ -20,6 +21,34 @@ class Politica(Resource):
     @api.doc('Consultar politicas de privacidad existentes')
     def get(self):
         return consultar_politicas()
+
+    @api.response(201, 'Politica editada con exito')
+    @api.doc('Editar politica')
+    def patch(self):
+        """Editar una politica"""
+        data = request.json
+        return editar_politica(data)
+
+
+@api.route('/Asignada')
+class Politica(Resource):
+    @api.response(201, 'Politica asignada editada con exito')
+    @api.doc('Editar asignar politica')
+    def patch(self):
+        """Editar asignar de politica"""
+        data = request.json
+        return actualizar_politica_asignada(data)
+
+
+@api.route('/<id>', methods=["DELETE"])
+@api.param('id', 'Identificador de la politica')
+@api.response(404,'Politica no encontrado')
+class Politica(Resource):
+    @api.response(201, 'Politica eliminado con exito')
+    @api.doc('Eliminar politica')
+    def delete(self, id):
+        """Eliminar una politica"""
+        return eliminar_politica(id=id)
 
 
 @api.route('/Previsualizacion')
@@ -44,16 +73,6 @@ class Politica(Resource):
     def put(self):
         data = request.json
         return actualizar_usuario_politica(data)
-
-
-@api.route('/ListaConsolidar/<politica_id>')
-@api.param('politica_id', 'id de la politica a consolidar')
-@api.response(404, 'Politica no encontrada')
-class Politica(Resource):
-    @api.response(201, 'Poltica lista')
-    @api.doc('Consultar si politica lista para consolidar')
-    def get(self, politica_id):
-        return politica_lista_para_consolidar_api(politica_id)
 
 
 @api.route('/Anotar/<usuario_id>')

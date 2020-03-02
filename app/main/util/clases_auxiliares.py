@@ -31,9 +31,10 @@ class TratamientoConsultar:
         self.descripcion = descripcion
         self.color_primario = ''
 
-    def __init__(self, id, descripcion, color_primario):
+    def __init__(self, id, descripcion, color_id, color_primario):
         self.id = id
         self.descripcion = descripcion
+        self.color_id = color_id
         self.color_primario = color_primario
 
 
@@ -123,9 +124,10 @@ class AnotacionConsultar:
 
 
 class AnotacionConsultarAnotador:
-    def __int__(self, texto_html, comentario, color_primario, valor_descripcion, atributo_descripcion,
+    def __int__(self,id, texto, comentario, color_primario, valor_descripcion, atributo_descripcion,
                 tratamiento_descripcion, usuario_nombre):
-        self.texto_html = texto_html
+        self.id = id
+        self.texto = texto
         self.comentario = comentario
         self.color_primario = color_primario
         self.valor_descripcion = valor_descripcion

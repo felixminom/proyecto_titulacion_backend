@@ -19,7 +19,7 @@ class Politica(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(128), unique=True, nullable=False)
-    url = db.Column(db.String(128), unique=True, nullable=False)
+    url = db.Column(db.String(128), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
     asignada = db.Column(db.Boolean, nullable=False)
     parrafos = db.relationship("Parrafo", backref=db.backref("politica"))
