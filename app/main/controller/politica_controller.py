@@ -2,7 +2,7 @@ from flask_restplus import Resource
 from flask import request
 from ..util.dto import PoliticaDto
 from..service.politica_service import previsualizar_politica, guardar_politica, guardar_usuario_politica, \
-    actualizar_usuario_politica, consultar_politicas_anotador_no_finalizadas,\
+    actualizar_anotador_politica, consultar_politicas_anotador_no_finalizadas,\
     consultar_politicas_consolidador_no_finalizadas, consultar_politica_parrafos, consultar_politicas, \
     eliminar_politica, editar_politica, actualizar_politica_asignada
 
@@ -68,11 +68,14 @@ class Politica(Resource):
         data = request.json
         return guardar_usuario_politica(data)
 
+
+@api.route('/Anotador')
+class Politica(Resource):
     @api.response(201, 'Poltica usuario actualizado')
     @api.doc('Actualizar usuario finalizo politica')
-    def put(self):
+    def patch(self):
         data = request.json
-        return actualizar_usuario_politica(data)
+        return actualizar_anotador_politica(data)
 
 
 @api.route('/Anotar/<usuario_id>')

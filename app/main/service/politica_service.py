@@ -433,9 +433,10 @@ def guardar_usuario_politica(data):
         return respuesta, 409
 
 
-def actualizar_usuario_politica(data):
+def actualizar_anotador_politica(data):
     politica_usuario = PoliticaUsuarioRelacion.query.filter_by(politica_id=data['politica_id'],
-                                                               usuario_id=data['usuario_id']).first()
+                                                               usuario_id=data['usuario_id'],
+                                                               consolidar=False).first()
 
     if politica_usuario:
         politica_usuario.finalizado = True
