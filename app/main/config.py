@@ -22,9 +22,7 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = mysql_aws
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # uncomment the line below to use postgres
-    # SQLALCHEMY_DATABASE_URI = postgres_local_base
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
 config_by_name = dict(

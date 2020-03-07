@@ -31,11 +31,11 @@ class TratamientoConsultar:
         self.descripcion = descripcion
         self.color_primario = ''
 
-    def __init__(self, id, descripcion, color_id, color_primario):
+    def __init__(self, id, descripcion, color_id, color_primario_codigo):
         self.id = id
         self.descripcion = descripcion
         self.color_id = color_id
-        self.color_primario = color_primario
+        self.color_primario_codigo = color_primario_codigo
 
 
 class AtributoCompleto:

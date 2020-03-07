@@ -14,7 +14,6 @@ _tratamientoCompleto = TratamientoDto.tratamientoCompleto
 @api.route('/')
 class TratamientoList(Resource):
     @api.doc('Lista de tratamientos')
-    @api.marshal_list_with(_tratamientoConsultar)
     def get(self):
         """Lista de tratamientos registrados"""
         return obtener_todos_tratamientos()
@@ -54,7 +53,6 @@ class TratamientoCompleto(Resource):
 @api.response(404, 'Tratamiento no encontrado')
 class Tratamiento(Resource):
     @api.doc('Obtener tratamiento')
-    @api.marshal_with(_tratamientoConsultar)
     def get(self, id):
         """obtener tratamiento por id"""
         tratamiento = obtener_un_tratamiento(id)

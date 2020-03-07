@@ -306,10 +306,10 @@ class TratamientoDto:
     })
 
     tratamientoConsultar = api.model('tratamientoConsultar', {
-        'id': fields.Integer(required=False, description='id tratamiento'),
-        'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
+        'id': fields.Integer,
+        'descripcion': fields.String,
         'color_id': fields.Integer,
-        'color_primario': fields.String(required=True, description='Color del tratamiento para anotaciones')
+        'color_primario_codigo': fields.String
     })
 
     tratamientoCompleto = api.model('tratamientoCompleto', {

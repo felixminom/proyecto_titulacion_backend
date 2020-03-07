@@ -39,7 +39,6 @@ class AnotacionConsultar(Resource):
         return obtener_anotaciones_parrafo(id)
 
     @api.doc('Eliminar anotacion por Id')
-    @api.marshal_list_with(_anotacion)
     def delete(self, id):
         """Eliminar anotacion"""
         return eliminar_anotacion(id)
@@ -64,7 +63,7 @@ class Anotacion(Resource):
 
 
 @api.route('/Total/Anotador')
-class Anotacion(Resource):
+class AnotacionTotal(Resource):
     @api.response(201, 'Existen anotaciones')
     @api.doc('Consultar total anotaciones de usuarios sobre un parrafo')
     @api.expect(AnotacionDto.consultarTotalAnotaciones, validate=True)
