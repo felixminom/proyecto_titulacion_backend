@@ -11,8 +11,12 @@ from ..service.parrafo_service import guardar_parrafo, consultar_num_parrafos_po
 from ..service.anotacion_service import consultar_ultima_anotacion_usuario_politica
 import os
 
-CARPETA_SUBIDA = os.getcwd() + '\Politicas\\'
 EXTENSIONES_PERMITIDAS = {'txt'}
+
+if os.name == 'nt':
+    CARPETA_SUBIDA = os.getcwd() + '\Politicas\\'
+else:
+    CARPETA_SUBIDA = os.getcwd() + '/Politicas/'
 
 politica_respuesta = PoliticaMostrar
 politica_respuesta.parrafos = []

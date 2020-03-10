@@ -18,7 +18,8 @@ from app.main.model import usuario
 from app.main.model import valor
 
 ENVIRONMENT = 'dev'
-app = create_app(os.getenv('ENVIRONMENT') or 'dev')
+
+app = create_app(ENVIRONMENT)
 
 app.register_blueprint(blueprint)
 

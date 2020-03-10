@@ -88,7 +88,7 @@ class AnotacionDto:
         'valor_descripcion': fields.String,
         'color_primario': fields.String,
         'texto': fields.String,
-        
+        'permite' : fields.Boolean,
         'comentario': fields.String
     })
 

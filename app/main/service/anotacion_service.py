@@ -91,6 +91,7 @@ def editar_anotacion(data):
         anotacion.texto = data['texto']
         anotacion.texto_html = data['texto_html']
         anotacion.comentario = data['comentario']
+        anotacion.permite = data['permite']
         guardar_cambios(anotacion)
         respuesta = {
             'estado': 'exito',
@@ -101,7 +102,7 @@ def editar_anotacion(data):
 
 def eliminar_anotacion(id):
     try:
-        Anotacion.query.filter_by(id=id).delete()
+        db.session.query(Anotacion).filter(Anotacion.id == id).delete()
     except:
         db.session.rollback()
         respuesta = {
@@ -124,9 +125,10 @@ def obtener_anotaciones_parrafo(parrafo_id):
 
 
 def obtener_total_anotaciones_parrafo_anotador(data):
-    anotaciones_anotador_total = Anotacion.query.filter_by(usuario_id=data['usuario_id'],
-                                                           parrafo_id=data['parrafo_id'],
-                                                           consolidar=False).count()
+    anotaciones_anotador_total = db.session.query(Anotacion)\
+                                .filter(Anotacion.usuario_id == data['usuario_id'],
+                                        Anotacion.parrafo_id == data['parrafo_id'],
+                                        Anotacion.consolidar == False).count()
     respuesta = {
         'estado': 'exito',
         'num_anotaciones': anotaciones_anotador_total
