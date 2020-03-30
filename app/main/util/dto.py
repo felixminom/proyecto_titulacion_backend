@@ -56,40 +56,61 @@ class ModuloDto:
 
 class AnotacionDto:
     api = Namespace('Anotacion', description='Operaciones relacionadas a anotaciones')
+
+    anotacionValor = api.model('anotacionValor', {
+        'valor_id': fields.Integer(required=True)
+    })
+
+    anotacionNotificacion = api.model('anotacionNotificacion', {
+        'usuario_id': fields.Integer(required=True),
+        'parrafo_id': fields.Integer(required=True),
+        'permite': fields.Boolean(required=True),
+        'valores': fields.List(fields.Nested(anotacionValor), required=True)
+    })
+
+    anotacionNotificacionConsultar = api.model('',{
+        'inconsistencia': fields.Boolean,
+    })
+
     anotacion = api.model('anotacion', {
         'texto': fields.String(required=True),
         'texto_html': fields.String(required=True),
         'comentario': fields.String,
         'parrafo_id': fields.Integer(required=True),
-        'valor_id': fields.Integer(required=True),
         'usuario_id': fields.Integer(required=True),
         'consolidar' : fields.Boolean(required=True),
-        'permite': fields.Boolean(required=True)
+        'permite': fields.Boolean(required=True),
+        'valores': fields.List(fields.Nested(anotacionValor))
     })
 
     anotacionConsultar = api.model('anotacionConsultar', {
-        'texto_html': fields.String(required=True),
+        'texto_html': fields.String,
         'comentario': fields.String,
-        'valor_id': fields.Integer(required=True),
+        'valor_id': fields.Integer,
         'valor_descripcion': fields.String,
         'atributo_id': fields.Integer,
         'atributo_descripcion': fields.String,
         'tratamiento_id': fields.Integer,
         'tratamiento_descripcion': fields.String,
-        'parrafo_id': fields.Integer(required=True),
-        'usuario_id': fields.Integer(required=True),
+        'parrafo_id': fields.Integer,
+        'usuario_id': fields.Integer,
         'usuario_nombre': fields.String
     })
 
-    anotacionConsultarAnotadores = api.model('anotacionConsultarAnotadores', {
-        'id' : fields.Integer,
+    anotacionValorConsultar = api.model('anotacionValor', {
+        'color_primario': fields.String,
         'tratamiento_descripcion': fields.String,
         'atributo_descripcion': fields.String,
         'valor_descripcion': fields.String,
-        'color_primario': fields.String,
+        'valor_id': fields.Integer
+    })
+
+    anotacionConsultarAnotadores = api.model('anotacionConsultarAnotadores', {
+        'id': fields.Integer,
         'texto': fields.String,
-        'permite' : fields.Boolean,
-        'comentario': fields.String
+        'permite': fields.Boolean,
+        'comentario': fields.String,
+        'valores': fields.List(fields.Nested(anotacionValorConsultar))
     })
 
     usuariosAnotaciones = api.model('usuariosAnotaciones', {
@@ -105,7 +126,8 @@ class AnotacionDto:
 
     consultarTotalAnotaciones = api.model('consultarTotalAnotaciones', {
         'usuario_id': fields.Integer(required=True),
-        'parrafo_id': fields.Integer(required=True)
+        'parrafo_id': fields.Integer(required=True),
+        'consolidar': fields.Boolean(required=True)
     })
 
 

@@ -31,6 +31,7 @@ class Auth:
                 usuario.email = usuario_aux.email
                 usuario.rol_usuario = usuario_aux.rol_usuario
                 usuario.activo = usuario_aux.activo
+                usuario.entrenamiento = usuario_aux.entrenamiento
                 auth_token = Usuario.codificar_auth_token(usuario_id=usuario_aux.id)
                 if auth_token:
                     response_object = {

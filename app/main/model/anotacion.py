@@ -1,6 +1,13 @@
 from .. import db
 
 
+class AnotacionValorRelacion(db.Model):
+    __tablename__ = 'anotacion_valor'
+
+    anotacion_id = db.Column(db.Integer, db.ForeignKey('anotacion.id'), nullable=False, primary_key=True)
+    valor_id = db. Column(db.Integer, db.ForeignKey('valor.id'), nullable=False, primary_key=True)
+
+
 class Anotacion(db.Model):
     __tablename__ = "anotacion"
 
@@ -9,7 +16,6 @@ class Anotacion(db.Model):
     texto = db.Column(db.TEXT, nullable=False)
     texto_html = db.Column(db.TEXT, nullable=False)
     comentario = db.Column(db.TEXT)
-    valor_id = db.Column(db.Integer, db.ForeignKey('valor.id'))
     parrafo_id = db.Column(db.Integer, db.ForeignKey('parrafo.id'))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     consolidar = db.Column(db.Boolean, nullable=False, default=False)

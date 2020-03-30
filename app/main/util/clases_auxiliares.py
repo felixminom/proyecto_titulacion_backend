@@ -106,6 +106,11 @@ class PoliticaMostrar:
         self.parrafos = parrafos
 
 
+class AnotacionNotificacionConsultar:
+    def __init__(self, inconsistencia):
+        self.inconsistencia = inconsistencia
+
+
 class AnotacionConsultar:
     def __int__(self, texto, texto_html, comentario, valor_id, valor_descripcion, atributo_id, atributo_descripcion,
                 tratamiento_id, tratamiento_descripcion, parrafo_id, usuario_id, usuario_nombre):
@@ -123,16 +128,21 @@ class AnotacionConsultar:
         self.usuario_nombre = usuario_nombre
 
 
+class AnotacionValor:
+    def __int__(self, valor_id, valor_descripcion, atributo_descripcion, tratamiento_descripcion, color_primario):
+        self.valor_id = valor_id
+        self.valor_descripcion = valor_descripcion
+        self. atributo_descripcion = atributo_descripcion
+        self. tratamiento_descripcion = tratamiento_descripcion
+        self.color_primario = color_primario
+
+
 class AnotacionConsultarAnotador:
-    def __int__(self,id, texto, comentario, color_primario, valor_descripcion, atributo_descripcion,
-                tratamiento_descripcion, usuario_nombre):
+    def __int__(self, id, texto, comentario, usuario_nombre, valores):
         self.id = id
         self.texto = texto
         self.comentario = comentario
-        self.color_primario = color_primario
-        self.valor_descripcion = valor_descripcion
-        self.atributo_descripcion = atributo_descripcion
-        self.tratamiento_descripcion = tratamiento_descripcion
+        self.valores = valores
 
 
 class ConsultarAnotacionesAnotadoresParrafo:

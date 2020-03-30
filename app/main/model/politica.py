@@ -24,6 +24,5 @@ class Politica(db.Model):
     asignada = db.Column(db.Boolean, nullable=False)
     parrafos = db.relationship("Parrafo", backref=db.backref("politica"))
 
-
     def __repr__(self):
         return "<Politica '{}'>".format(self.nombre)
