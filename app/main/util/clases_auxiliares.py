@@ -106,13 +106,25 @@ class PoliticaMostrar:
         self.parrafos = parrafos
 
 
+class AnotacionesUsuarioDetalle:
+    def __init__(self, email ='', total_anotaciones=0):
+        self.email = email
+        self.total_anotaciones = total_anotaciones
+
+
+class DetallesAnotacionPolitica:
+    def __init__(self, coeficiente, anotadores):
+        self.coeficiente = coeficiente
+        self.anotadores = anotadores
+
+
 class AnotacionNotificacionConsultar:
     def __init__(self, inconsistencia):
         self.inconsistencia = inconsistencia
 
 
 class AnotacionConsultar:
-    def __int__(self, texto, texto_html, comentario, valor_id, valor_descripcion, atributo_id, atributo_descripcion,
+    def __init__(self, texto, texto_html, comentario, valor_id, valor_descripcion, atributo_id, atributo_descripcion,
                 tratamiento_id, tratamiento_descripcion, parrafo_id, usuario_id, usuario_nombre):
         self.texto = texto
         self.texto_html = texto_html
@@ -129,7 +141,8 @@ class AnotacionConsultar:
 
 
 class AnotacionValor:
-    def __int__(self, valor_id, valor_descripcion, atributo_descripcion, tratamiento_descripcion, color_primario):
+    def __init__(self, valor_id = 0, valor_descripcion ='', atributo_descripcion='', tratamiento_descripcion='',
+                 color_primario =''):
         self.valor_id = valor_id
         self.valor_descripcion = valor_descripcion
         self. atributo_descripcion = atributo_descripcion
@@ -138,7 +151,7 @@ class AnotacionValor:
 
 
 class AnotacionConsultarAnotador:
-    def __int__(self, id, texto, comentario, usuario_nombre, valores):
+    def __init__(self, id, texto, comentario, valores):
         self.id = id
         self.texto = texto
         self.comentario = comentario
@@ -146,34 +159,16 @@ class AnotacionConsultarAnotador:
 
 
 class ConsultarAnotacionesAnotadoresParrafo:
-    def __int__(self, usuario_email, rol_usuario, anotaciones):
+    def __init__(self, usuario_email, rol_usuario, anotaciones):
         self.email = usuario_email
         self.rol_usuario = rol_usuario
         self.anotaciones = anotaciones
 
 
 class AnotacionesAnotadoresConsultarRespuesta:
-    def __int__(self, inconsistencia, usuarios_anotaciones):
+    def __init__(self, inconsistencia, usuarios_anotaciones):
         self.inconsistencia = inconsistencia
         self.usuarios_anotaciones = usuarios_anotaciones
-
-
-class InconsistenciaTratamiento:
-    def __int__(self, tratamiento_id):
-        self.tratamiento_id = tratamiento_id
-
-
-class InconsistenciaAtributo:
-    def __int__(self, tratamiento_id, atributo_id):
-        self.tratamiento_id = tratamiento_id
-        self.atributo_id = atributo_id
-
-
-class InconsistenciaValor:
-    def __int__(self, tratamiento_id, atributo_id, valor_id):
-        self.tratamiento_id = tratamiento_id
-        self.atributo_id = atributo_id
-        self.valor_id = valor_id
 
 
 class PoliticaUsuarioGuardar:

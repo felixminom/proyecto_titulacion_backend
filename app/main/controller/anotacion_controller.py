@@ -3,7 +3,8 @@ from flask import request
 from ..util.dto import AnotacionDto
 from ..service.anotacion_service import guardar_anotacion, obtener_anotaciones_parrafo, \
     consultar_anotaciones_anotadores, obtener_total_anotaciones_parrafo_anotador, \
-    obtener_anotaciones_parrafo_usuario, eliminar_anotacion, editar_anotacion, consultar_inconsistencia_notificacion
+    obtener_anotaciones_parrafo_usuario, eliminar_anotacion, editar_anotacion, consultar_inconsistencia_notificacion,\
+    consultar_detalles_anotacion_politica
 
 api = AnotacionDto.api
 _anotacion = AnotacionDto.anotacion
@@ -13,7 +14,7 @@ _anotacionNotificacion = AnotacionDto.anotacionNotificacion
 
 @api.route('/')
 class Anotacion(Resource):
-    @api.response(201,'Anotacion creada con exito')
+    @api.response(201, 'Anotacion creada con exito')
     @api.doc('Crear nueva anotacion de un parrafo')
     @api.expect(_anotacion, validate=True)
     def post(self):
@@ -27,10 +28,19 @@ class Anotacion(Resource):
         return editar_anotacion(data)
 
 
+@api.route('/Detalles')
+class Anotacion(Resource):
+    @api.response(201, AnotacionDto.detallesAnotacionPolitica)
+    @api.doc('Consultar incosistencia en anotacion')
+    def post(self):
+        data = request.json
+        return consultar_detalles_anotacion_politica(data)
+
+
 @api.route('/Notificacion')
 class Anotacion(Resource):
-    @api.response(201,'Anotacion creada con exito')
-    @api.doc('Crear nueva anotacion de un parrafo')
+    @api.response(201,'Consultar incosistencia en anotacion')
+    @api.doc('Consultar incosistencia en anotacion')
     @api.expect(_anotacionNotificacion, validate=True)
     def post(self):
         data = request.json

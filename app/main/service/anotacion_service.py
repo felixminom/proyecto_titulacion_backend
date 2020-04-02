@@ -9,7 +9,8 @@ from app.main.model.politica import Politica, PoliticaUsuarioRelacion
 from app.main.model.rol_usuario import RolUsuario
 from app.main.util.dto import AnotacionDto
 from app.main.util.clases_auxiliares import  AnotacionConsultarAnotador, ConsultarAnotacionesAnotadoresParrafo, \
-    AnotacionesAnotadoresConsultarRespuesta, AnotacionValor, AnotacionNotificacionConsultar
+    AnotacionesAnotadoresConsultarRespuesta, AnotacionValor, AnotacionNotificacionConsultar, AnotacionesUsuarioDetalle,\
+    DetallesAnotacionPolitica
 from flask_restplus import marshal
 import datetime
 
@@ -103,7 +104,6 @@ def consultar_inconsistencia_notificacion(data):
         else:
             valor_consistente.append(False)
     inconsistencia = AnotacionNotificacionConsultar(not all(x == True for x in valor_consistente))
-    print(inconsistencia)
     return marshal(inconsistencia, AnotacionDto.anotacionNotificacionConsultar), 201
 
 
@@ -246,6 +246,74 @@ def consultar_anotaciones_anotadores(data):
     usuarios_anotaciones.usuarios_anotaciones = anotaciones
 
     return marshal(usuarios_anotaciones, AnotacionDto.anotacionesAnotadoresConsultarRespuesta), 201
+
+
+#Calculo de coeficiente interanotador
+def consultar_detalles_anotacion_politica(data):
+    detallesPolitica = DetallesAnotacionPolitica
+    detallesPolitica.anotadores = []
+    usuarios = (db.session.query(PoliticaUsuarioRelacion, Usuario)
+                .outerjoin(Usuario, PoliticaUsuarioRelacion.usuario_id == Usuario.id)
+                .filter(PoliticaUsuarioRelacion.politica_id == data['politica_id'],
+                        PoliticaUsuarioRelacion.consolidar == False).all())
+
+    detallesPolitica.coeficiente = calcular_coeficiente_interanotador(data['politica_id'], usuarios)
+    for usuario in usuarios:
+        usuarioAux = AnotacionesUsuarioDetalle()
+        usuarioAux.email = usuario[1].email
+        usuarioAux.total_anotaciones = consultar_total_anotaciones_usuario(data['politica_id'], usuario[1].id, False)
+        detallesPolitica.anotadores.append(usuarioAux)
+
+    return marshal(detallesPolitica, AnotacionDto.detallesAnotacionPolitica), 201
+
+
+def consultar_total_anotaciones_usuario(politica_id, usuario_id, consolidar):
+    total_anotaciones = (db.session.query(Anotacion)
+                         .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
+                         .outerjoin(Politica, Parrafo.politica_id == Politica.id)
+                         .filter(Politica.id == politica_id,
+                                 Anotacion.usuario_id == usuario_id,
+                                 Anotacion.consolidar == consolidar).count())
+
+    return total_anotaciones
+
+
+def calcular_coeficiente_interanotador(politica_id, usuarios):
+    listaAnotaciones = []
+
+    for usuario in usuarios:
+        valores = (db.session.query(Anotacion.permite.distinct(), AnotacionValorRelacion.valor_id)
+                   .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
+                   .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
+                   .outerjoin(Politica, Parrafo.politica_id == Politica.id)
+                   .filter(Politica.id == politica_id,
+                           Anotacion.usuario_id == usuario[1].id,
+                           Anotacion.consolidar == False))
+
+        for valor in valores:
+            tupla = (valor[0], valor[1])
+            listaAnotaciones.append(tupla)
+
+    acumulador = 0
+    lista_anotaciones_unica = lista_unica(listaAnotaciones)
+    for anotacion in listaAnotaciones:
+        acumulador = acumulador + listaAnotaciones.count(anotacion) - 1
+        listaAnotaciones = [ant for ant in listaAnotaciones if ant != anotacion]
+
+        if not listaAnotaciones:
+            # anotacionesSimilares / (anotaciones_diferentes_por_numero_usuarios)
+            coeficiente = (acumulador/(len(lista_anotaciones_unica)*(len(usuarios)-1))) *100
+            return coeficiente
+
+
+def lista_unica(lista):
+    lista_unica = []
+
+    for x in lista:
+        if x not in lista_unica:
+            lista_unica.append(x)
+
+    return lista_unica
 
 
 def guardar_cambios(data):

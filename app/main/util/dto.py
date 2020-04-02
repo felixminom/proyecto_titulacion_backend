@@ -25,10 +25,11 @@ class ColorDto:
 
 class ModuloDto:
     api = Namespace('Modulo', description='Operaciones relacionadas a modulos')
-    modulo = api.model('modulo',{
+
+    modulo = api.model('modulo', {
         'nombre': fields.String(required=True, description='nombre del modulo(unico)'),
-        'icono' : fields.String(required=True, description='icono para menu'),
-        'padre_id' : fields.Integer(required=True, description='id del modulo padre, NULL para modulo sin padre')
+        'icono': fields.String(required=True, description='icono para menu'),
+        'padre_id': fields.Integer(required=True, description='id del modulo padre, NULL para modulo sin padre')
     })
 
     moduloConsultar = api.model('moduloConsultar', {
@@ -57,6 +58,16 @@ class ModuloDto:
 class AnotacionDto:
     api = Namespace('Anotacion', description='Operaciones relacionadas a anotaciones')
 
+    anotacionesUsuarioDetalle = api.model('anotacionesUsuarioDetalle', {
+        'email': fields.String,
+        'total_anotaciones': fields.Integer
+    })
+
+    detallesAnotacionPolitica = api.model('detallesAnotacionPolitica', {
+        'coeficiente': fields.Float,
+        'anotadores': fields.List(fields.Nested(anotacionesUsuarioDetalle))
+    })
+
     anotacionValor = api.model('anotacionValor', {
         'valor_id': fields.Integer(required=True)
     })
@@ -68,8 +79,8 @@ class AnotacionDto:
         'valores': fields.List(fields.Nested(anotacionValor), required=True)
     })
 
-    anotacionNotificacionConsultar = api.model('',{
-        'inconsistencia': fields.Boolean,
+    anotacionNotificacionConsultar = api.model('anotacionNotificacionConsultar', {
+        'inconsistencia': fields.Boolean
     })
 
     anotacion = api.model('anotacion', {
