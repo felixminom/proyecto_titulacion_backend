@@ -69,6 +69,7 @@ def eliminar_valor(id):
         }
         return respuesta, 201
 
+
 def obtener_todos_valores():
     valores = [ValorConsultar]
     valores_consultar = (db.session.query(Valor, Atributo, Tratamiento)
@@ -141,7 +142,7 @@ def obtener_valor(id):
             'estatus': 'fallido',
             'mensaje': 'No exite atributo'
         }
-        return respuesta,404
+        return respuesta, 404
     else:
         valor = ValorConsultar
         valor.id = valor_aux[0].id

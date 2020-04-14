@@ -13,6 +13,15 @@ def guardar_parrafo(data):
     guardar_cambios(parrafo_nuevo)
 
 
+def eliminar_parrafos_politica(politica_id):
+    try:
+        Parrafo.query.filter_by(politica_id=politica_id).delete()
+    except:
+        db.session.rollback()
+    else:
+        db.session.commit()
+
+
 def consultar_num_parrafos_politica(politica_id):
     num_parrafos = (db.session.query(Parrafo)
                     .filter(Parrafo.politica_id == politica_id).count())

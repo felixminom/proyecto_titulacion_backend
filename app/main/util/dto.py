@@ -79,10 +79,6 @@ class AnotacionDto:
         'valores': fields.List(fields.Nested(anotacionValor), required=True)
     })
 
-    anotacionNotificacionConsultar = api.model('anotacionNotificacionConsultar', {
-        'inconsistencia': fields.Boolean
-    })
-
     anotacion = api.model('anotacion', {
         'texto': fields.String(required=True),
         'texto_html': fields.String(required=True),
@@ -114,6 +110,12 @@ class AnotacionDto:
         'atributo_descripcion': fields.String,
         'valor_descripcion': fields.String,
         'valor_id': fields.Integer
+    })
+
+    anotacionNotificacionConsultar = api.model('anotacionNotificacionConsultar', {
+        'inconsistencia': fields.Boolean,
+        'valores_inconsistentes': fields.List(fields.Nested(anotacionValorConsultar)),
+        'valores_sugeridos': fields.List(fields.Nested(anotacionValorConsultar))
     })
 
     anotacionConsultarAnotadores = api.model('anotacionConsultarAnotadores', {

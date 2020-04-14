@@ -67,15 +67,15 @@ class Usuario(Resource):
         return obtener_administradores_activos()
 
 
-@api.route('/<email>')
-@api.param('email','Identificador del usuario')
+@api.route('/<id>')
+@api.param('id','Identificador del usuario')
 @api.response(404,'Usuario no encontrado')
 class Usuario(Resource):
     @api.doc('Obtener Usuario por email')
     @api.marshal_with(_usuarioConsultar)
-    def get(self,email):
+    def get(self, id):
         """obtener usuario por email"""
-        usuario = obtener_un_usuario(email)
+        usuario = obtener_un_usuario(id)
         if not usuario:
             api.abort(404)
         else:

@@ -13,6 +13,9 @@ class PoliticaUsuarioRelacion(db.Model):
     politica = db.relationship("Politica", backref=db.backref("politicas"))
     usuario = db.relationship("Usuario", backref=db.backref("usuarios"))
 
+    def __repr__(self):
+        return "<Politica-Usuario: {}>".format(self.usuario_id)
+
 
 class Politica(db.Model):
     __tablename__ = "politica"

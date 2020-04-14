@@ -1,13 +1,12 @@
 from app.main import db
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
-from app.main.model.parrafo import Parrafo
 from flask import request
 from flask_restplus import marshal
 from werkzeug.utils import secure_filename
 from ..util.clases_auxiliares import PoliticaMostrar, ParrafoMostrar, ParrafoGuardar, PoliticaAnotadorNoFinalizadas, \
     PoliticaConsultarParrafos
 from ..util.dto import PoliticaDto
-from ..service.parrafo_service import guardar_parrafo, consultar_num_parrafos_politica
+from ..service.parrafo_service import guardar_parrafo, consultar_num_parrafos_politica, eliminar_parrafos_politica
 from ..service.anotacion_service import consultar_ultima_anotacion_usuario_politica
 import os
 
@@ -294,7 +293,7 @@ def editar_politica(data):
 
 def eliminar_politica(id):
     try:
-        Parrafo.query.filter_by(politica_id=id).delete()
+        eliminar_parrafos_politica(politica_id=id)
         Politica.query.filter_by(id=id).delete()
     except:
         db.session.rollback()
@@ -407,7 +406,7 @@ def consultar_politicas_anotador_no_finalizadas(usuario_id):
 
 def calcular_progeso_politica(politica_id, usuario_id, consolidar):
     num_parrafos = consultar_num_parrafos_politica(politica_id)
-    ultimo_parrafo_anotado = consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar)
+    ultimo_parrafo_anotado = consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar) + 1
     return (ultimo_parrafo_anotado/num_parrafos) * 100
 
 
@@ -437,7 +436,7 @@ def guardar_usuario_politica(data):
         return respuesta, 409
 
 
-def actualizar_anotador_politica(data):
+def actualizar_usuario_politica_asignada(data):
     politica_usuario = PoliticaUsuarioRelacion.query.filter_by(politica_id=data['politica_id'],
                                                                usuario_id=data['usuario_id'],
                                                                consolidar=False).first()

@@ -8,7 +8,7 @@ from app.main.model.parrafo import Parrafo
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
 from app.main.model.rol_usuario import RolUsuario
 from app.main.util.dto import AnotacionDto
-from app.main.util.clases_auxiliares import  AnotacionConsultarAnotador, ConsultarAnotacionesAnotadoresParrafo, \
+from app.main.util.clases_auxiliares import AnotacionConsultarAnotador, ConsultarAnotacionesAnotadoresParrafo, \
     AnotacionesAnotadoresConsultarRespuesta, AnotacionValor, AnotacionNotificacionConsultar, AnotacionesUsuarioDetalle,\
     DetallesAnotacionPolitica
 from flask_restplus import marshal
@@ -90,21 +90,101 @@ def obtener_anotaciones_parrafo(parrafo_id):
     return anotaciones
 
 
+def valor_notificacion(valor_id):
+    valor = (db.session.query(Valor, Atributo, Tratamiento)
+             .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
+             .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
+             .filter(Valor.id == valor_id).first())
+
+    return valor
+
+
 def consultar_inconsistencia_notificacion(data):
-    valor_consistente = []
-    anotaciones_usuarios = (db.session.query(Anotacion, AnotacionValorRelacion)
+    anotaciones_usuarios = (db.session.query(Anotacion, AnotacionValorRelacion, Valor, Atributo, Tratamiento)
                             .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
+                            .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
+                            .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
+                            .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
                             .filter(Anotacion.parrafo_id == data['parrafo_id'],
                                     Anotacion.permite == data['permite'],
-                                    Anotacion.usuario_id != data['usuario_id']))
+                                    Anotacion.usuario_id != data['usuario_id'])
+                            .order_by(Tratamiento.id).all())
 
-    for valor in data['valores']:
-        if any(x[1].valor_id == valor['valor_id'] for x in anotaciones_usuarios):
-            valor_consistente.append(True)
-        else:
-            valor_consistente.append(False)
-    inconsistencia = AnotacionNotificacionConsultar(not all(x == True for x in valor_consistente))
-    return marshal(inconsistencia, AnotacionDto.anotacionNotificacionConsultar), 201
+    if not anotaciones_usuarios:
+        parrafo_secuencia = (db.session.query(Parrafo)
+                             .filter(Parrafo.id == data['parrafo_id']).first())
+
+        usuarios_anotadores = (db.session.query(PoliticaUsuarioRelacion,)
+                               .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
+                               .outerjoin(Parrafo, Politica.id == Parrafo.politica_id)
+                               .filter(PoliticaUsuarioRelacion.consolidar == False,
+                                       Parrafo.id == data['parrafo_id'],
+                                       PoliticaUsuarioRelacion.usuario_id != data['usuario_id']).all())
+
+        usuarios_ultimo_parrafo = []
+
+        for politica_usuario in usuarios_anotadores:
+            usuarios_ultimo_parrafo.append(consultar_ultima_anotacion_usuario_politica(politica_usuario.politica_id,
+                                                                                       politica_usuario.usuario_id,
+                                                                                       False))
+
+        i = 0
+        valores_no_consistentes = []
+        for valor in data['valores']:
+            valor = valor_notificacion(valor['valor_id'])
+            valores_no_consistentes.insert(i, valor[0])
+            valores_no_consistentes[i].valor_id = valor[0].id
+            valores_no_consistentes[i].valor_descripcion = valor[0].descripcion
+            valores_no_consistentes[i].atributo_descripcion = valor[1].descripcion
+            valores_no_consistentes[i].tratamiento_descripcion = valor[2].descripcion
+            valores_no_consistentes[i].color_primario = valor[2].color_tratamiento.codigo
+            i += 1
+
+        notificacion = AnotacionNotificacionConsultar(any(x > parrafo_secuencia.secuencia
+                                                      for x in usuarios_ultimo_parrafo),
+                                                      valores_no_consistentes,
+                                                      [])
+
+        return marshal(notificacion, AnotacionDto.anotacionNotificacionConsultar), 201
+    else:
+        consistencia_valores = []
+        valores_no_consistentes = []
+        valores_sugeridos = []
+        i = 0
+        for valor in data['valores']:
+            if any(x[1].valor_id == valor['valor_id'] for x in anotaciones_usuarios):
+                consistencia_valores.append(True)
+            else:
+                consistencia_valores.append(False)
+                valor = valor_notificacion(valor['valor_id'])
+                valores_no_consistentes.insert(i, valor[0])
+                valores_no_consistentes[i].valor_id = valor[0].id
+                valores_no_consistentes[i].valor_descripcion = valor[0].descripcion
+                valores_no_consistentes[i].atributo_descripcion = valor[1].descripcion
+                valores_no_consistentes[i].tratamiento_descripcion = valor[2].descripcion
+                valores_no_consistentes[i].color_primario = valor[2].color_tratamiento.codigo
+                i += 1
+
+        inconsistencia = not all(x for x in consistencia_valores)
+
+        if inconsistencia:
+            i = 0
+            for valor in anotaciones_usuarios:
+                valores_sugeridos.insert(i, valor[2])
+                valores_sugeridos[i].valor_id = valor[2].id
+                valores_sugeridos[i].valor_descripcion = valor[2].descripcion
+                valores_sugeridos[i].atributo_descripcion = valor[3].descripcion
+                valores_sugeridos[i].tratamiento_descripcion = valor[4].descripcion
+                valores_sugeridos[i].color_primario = valor[4].color_tratamiento.codigo
+                i += 1
+
+        valores_sugeridos_unicos = lista_unica(valores_sugeridos)
+
+        notificacion = AnotacionNotificacionConsultar(inconsistencia,
+                                                      valores_no_consistentes,
+                                                      valores_sugeridos_unicos)
+
+        return marshal(notificacion, AnotacionDto.anotacionNotificacionConsultar), 201
 
 
 def obtener_total_anotaciones_parrafo_anotador(data):
@@ -120,7 +200,7 @@ def obtener_total_anotaciones_parrafo_anotador(data):
 
 
 def obtener_anotacion_valores(anotacion_id):
-    valores = [AnotacionValor]
+    valores = []
     valores_anotaciones = (db.session.query(AnotacionValorRelacion, Valor, Atributo, Tratamiento)
                            .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
                            .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
@@ -129,28 +209,27 @@ def obtener_anotacion_valores(anotacion_id):
                            .order_by(Tratamiento.id))
 
     valores.clear()
-    j = 0
+    i = 0
     for valor in valores_anotaciones:
         valor_aux = AnotacionValor()
-        valores.insert(j, valor_aux)
-        valores[j].valor_id = valor[1].id
-        valores[j].valor_descripcion = valor[1].descripcion
-        valores[j].atributo_descripcion = valor[2].descripcion
-        valores[j].tratamiento_descripcion = valor[3].descripcion
-        valores[j].color_primario = valor[3].color_tratamiento.codigo
-        j += 1
+        valores.insert(i, valor_aux)
+        valores[i].valor_id = valor[1].id
+        valores[i].valor_descripcion = valor[1].descripcion
+        valores[i].atributo_descripcion = valor[2].descripcion
+        valores[i].tratamiento_descripcion = valor[3].descripcion
+        valores[i].color_primario = valor[3].color_tratamiento.codigo
+        i += 1
 
     return valores
 
 
 def obtener_anotaciones_parrafo_usuario(data):
-    anotaciones = [AnotacionConsultarAnotador]
+    anotaciones = []
     anotaciones_consultar = (db.session.query(Anotacion)
                              .filter(Anotacion.parrafo_id == data['parrafo_id'],
                                      Anotacion.usuario_id == data['usuario_id'],
                                      Anotacion.consolidar == data['consolidar']).all())
-    anotaciones.clear()
-    i = 0
+
     if not anotaciones_consultar:
         respuesta = {
             'estado': 'fallido',
@@ -158,6 +237,7 @@ def obtener_anotaciones_parrafo_usuario(data):
         }
         return respuesta, 404
     else:
+        i = 0
         for item in anotaciones_consultar:
             anotaciones.insert(i, item)
             anotaciones[i].valores = obtener_anotacion_valores(anotaciones[i].id)
@@ -166,17 +246,23 @@ def obtener_anotaciones_parrafo_usuario(data):
 
 
 def consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar):
-    ultimo_parrafo_anotado = (db.session.query(Anotacion.parrafo_id.distinct(), Parrafo, Politica)
+    ultimo_parrafo_anotado = (db.session.query(Anotacion.parrafo_id, Parrafo.secuencia)
+                              .outerjoin(AnotacionValorRelacion,)
                               .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
                               .outerjoin(Politica, Parrafo.politica_id == Politica.id)
                               .filter(Politica.id == politica_id,
                                       Anotacion.usuario_id == usuario_id,
-                                      Anotacion.consolidar == consolidar).count())
-    return ultimo_parrafo_anotado
+                                      Anotacion.consolidar == consolidar)
+                              .order_by(Parrafo.secuencia.desc()).first())
+
+    if ultimo_parrafo_anotado:
+        return ultimo_parrafo_anotado[1]
+    else:
+        return -1
 
 
 def consultar_anotaciones_usuario(politica_id, secuencia, usuario_id, consolidar):
-    anotaciones_usuario = [AnotacionConsultarAnotador]
+    anotaciones_usuario = []
     anotaciones_parrafo_usuarios = (db.session.query(Anotacion, Usuario, Parrafo)
                                     .outerjoin(Usuario, Anotacion.usuario_id == Usuario.id)
                                     .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
@@ -225,7 +311,7 @@ def consultar_inconsistencia(politica_id, secuencia, usuarios):
 
 def consultar_anotaciones_anotadores(data):
     usuarios_anotaciones = AnotacionesAnotadoresConsultarRespuesta
-    anotaciones = [ConsultarAnotacionesAnotadoresParrafo]
+    anotaciones = []
     anotaciones_aux = []
     usuarios = (db.session.query(PoliticaUsuarioRelacion, Usuario, RolUsuario)
                 .outerjoin(Usuario, PoliticaUsuarioRelacion.usuario_id == Usuario.id)
@@ -308,7 +394,6 @@ def calcular_coeficiente_interanotador(politica_id, usuarios):
 
 def lista_unica(lista):
     lista_unica = []
-
     for x in lista:
         if x not in lista_unica:
             lista_unica.append(x)

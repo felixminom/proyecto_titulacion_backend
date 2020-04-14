@@ -7,6 +7,9 @@ class AnotacionValorRelacion(db.Model):
     anotacion_id = db.Column(db.Integer, db.ForeignKey('anotacion.id'), nullable=False, primary_key=True)
     valor_id = db. Column(db.Integer, db.ForeignKey('valor.id'), nullable=False, primary_key=True)
 
+    def __repr__(self):
+        return '<AnotacionValor, id:{},valor:{}'.format(self.anotacion_id, self.valor_id)
+
 
 class Anotacion(db.Model):
     __tablename__ = "anotacion"
@@ -22,4 +25,4 @@ class Anotacion(db.Model):
     permite = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<anotacion: {}>'.format(self.id, self.texto)
+        return '<anotacion: {}>'.format(self.id, self.permite, self.consolidar)

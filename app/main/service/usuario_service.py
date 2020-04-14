@@ -137,8 +137,8 @@ def obtnener_todos_usuarios():
     return usuarios
 
 
-def obtener_un_usuario(email):
-    return Usuario.query.filter_by(email=email).first()
+def obtener_un_usuario(id):
+    return Usuario.query.filter_by(id=id).first()
 
 
 def obtener_anotadores_activos():

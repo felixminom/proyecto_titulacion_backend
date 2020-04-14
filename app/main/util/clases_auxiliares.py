@@ -119,8 +119,10 @@ class DetallesAnotacionPolitica:
 
 
 class AnotacionNotificacionConsultar:
-    def __init__(self, inconsistencia):
+    def __init__(self, inconsistencia, valores_inconsistentes, valores_sugeridos):
         self.inconsistencia = inconsistencia
+        self.valores_inconsistentes = valores_inconsistentes
+        self.valores_sugeridos = valores_sugeridos
 
 
 class AnotacionConsultar:
