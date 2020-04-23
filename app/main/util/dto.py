@@ -167,7 +167,6 @@ class PoliticaDto:
         'url': fields.String,
         'fecha': fields.Date,
         'asignada': fields.Boolean
-
     })
 
     politicaMostrar = api.model('PoliticaMostrar', {

@@ -8,11 +8,14 @@ from app.main.model.parrafo import Parrafo
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
 from app.main.model.rol_usuario import RolUsuario
 from app.main.util.dto import AnotacionDto
-from app.main.util.clases_auxiliares import AnotacionConsultarAnotador, ConsultarAnotacionesAnotadoresParrafo, \
-    AnotacionesAnotadoresConsultarRespuesta, AnotacionValor, AnotacionNotificacionConsultar, AnotacionesUsuarioDetalle,\
+from app.main.util.clases_auxiliares import AnotacionesAnotadoresConsultarRespuesta, AnotacionValor, \
+    AnotacionNotificacionConsultar, AnotacionesUsuarioDetalle,\
     DetallesAnotacionPolitica
+from app.main.service.parrafo_service import consultar_num_parrafos_politica
 from flask_restplus import marshal
 import datetime
+from numpy import array
+import krippendorff
 
 _anotacionesConsultar = AnotacionDto.anotacionConsultar
 
@@ -365,7 +368,7 @@ def consultar_total_anotaciones_usuario(politica_id, usuario_id, consolidar):
 
 
 def calcular_coeficiente_interanotador(politica_id, usuarios):
-    listaAnotaciones = []
+    lista_anotaciones_usuarios = []
 
     for usuario in usuarios:
         valores = (db.session.query(Anotacion.permite.distinct(), AnotacionValorRelacion.valor_id)
@@ -374,22 +377,53 @@ def calcular_coeficiente_interanotador(politica_id, usuarios):
                    .outerjoin(Politica, Parrafo.politica_id == Politica.id)
                    .filter(Politica.id == politica_id,
                            Anotacion.usuario_id == usuario[1].id,
-                           Anotacion.consolidar == False))
+                           Anotacion.consolidar == False)
+                   .order_by(AnotacionValorRelacion.valor_id).all())
+
+        anotaciones_usuario = []
 
         for valor in valores:
             tupla = (valor[0], valor[1])
-            listaAnotaciones.append(tupla)
+            anotaciones_usuario.append(tupla)
 
-    acumulador = 0
-    lista_anotaciones_unica = lista_unica(listaAnotaciones)
-    for anotacion in listaAnotaciones:
-        acumulador = acumulador + listaAnotaciones.count(anotacion) - 1
-        listaAnotaciones = [ant for ant in listaAnotaciones if ant != anotacion]
+        lista_anotaciones_usuarios.append(anotaciones_usuario)
 
-        if not listaAnotaciones:
-            # anotacionesSimilares / (anotaciones_diferentes_por_numero_usuarios)
-            coeficiente = (acumulador/(len(lista_anotaciones_unica)*(len(usuarios)-1))) *100
-            return coeficiente
+    lista_unica_anotaciones_usuario = lista_anidada_unica(lista_anotaciones_usuarios)
+
+    datos_matriz = []
+
+    for usuario in lista_anotaciones_usuarios:
+        datos_usuario = []
+        for valor in lista_unica_anotaciones_usuario:
+            if valor in usuario:
+                datos_usuario.append(1)
+            else:
+                datos_usuario.append(0)
+        datos_matriz.append(datos_usuario)
+
+    numero_parrafos_anotados = (db.session.query(Parrafo.id.distinct())
+                                .outerjoin(Anotacion, Parrafo.id == Anotacion.parrafo_id)
+                                .outerjoin(Politica, Parrafo.politica_id == Politica.id)
+                                .filter(Anotacion.consolidar == False,
+                                        Politica.id == politica_id).count())
+
+    numero_parrafos_totales = consultar_num_parrafos_politica(politica_id)
+
+    numero_parrafos_no_anotados= numero_parrafos_totales - numero_parrafos_anotados
+
+    if numero_parrafos_no_anotados != 0:
+        for i in range(0, numero_parrafos_no_anotados):
+            for usuario in datos_matriz:
+                usuario.append(0)
+    else:
+        if all(x == datos_matriz[0] for x in datos_matriz):
+            print("toy chiquito")
+            for usuario in datos_matriz:
+                usuario.append(0)
+
+    datos_de_fiabilidad = array(datos_matriz)
+
+    return krippendorff.alpha(reliability_data=datos_de_fiabilidad, level_of_measurement='nominal') * 100 
 
 
 def lista_unica(lista):
@@ -398,6 +432,15 @@ def lista_unica(lista):
         if x not in lista_unica:
             lista_unica.append(x)
 
+    return lista_unica
+
+
+def lista_anidada_unica(lista_listas):
+    lista_unica = []
+    for lista in lista_listas:
+        for x in lista:
+            if x not in lista_unica:
+                lista_unica.append(x)
     return lista_unica
 
 

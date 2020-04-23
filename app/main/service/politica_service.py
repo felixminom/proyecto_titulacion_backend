@@ -353,14 +353,14 @@ def consultar_politica_parrafos(politica_id):
 
 
 def consultar_politicas_consolidador_no_finalizadas(consolidador_id):
-    politicas_anotar = [PoliticaAnotadorNoFinalizadas]
-    politicas_anotar_sql = (db.session.query(PoliticaUsuarioRelacion, Politica)
-                            .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
-                            .filter(PoliticaUsuarioRelacion.usuario_id == consolidador_id,
-                                    PoliticaUsuarioRelacion.consolidar == True,
-                                    PoliticaUsuarioRelacion.finalizado == False).all())
+    politicas_anotar= []
+    politicas_anotar_consulta = (db.session.query(PoliticaUsuarioRelacion, Politica)
+                        .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
+                        .filter(PoliticaUsuarioRelacion.usuario_id == consolidador_id,
+                                PoliticaUsuarioRelacion.consolidar == True,
+                                PoliticaUsuarioRelacion.finalizado == False,).all())
 
-    if not politicas_anotar_sql:
+    if not politicas_anotar_consulta:
         respuesta = {
             "estado": "fallido",
             "mensaje": "El usuario no tiene politicas por consolidar"
@@ -368,12 +368,13 @@ def consultar_politicas_consolidador_no_finalizadas(consolidador_id):
         return respuesta, 409
     else:
         i = 0
-        politicas_anotar.clear()
-        for item in politicas_anotar_sql:
+        for item in politicas_anotar_consulta:
             if politica_lista_para_consolidar(item[0].politica_id):
                 politicas_anotar.insert(i, item[0])
                 politicas_anotar[i].politica_nombre = item[1].nombre
-                politicas_anotar[i].progreso = calcular_progeso_politica(politicas_anotar[i].politica_id, consolidador_id,True)
+                politicas_anotar[i].progreso = calcular_progeso_politica(politicas_anotar[i].politica_id,
+                                                                         consolidador_id,
+                                                                         True)
                 i += 1
 
         return marshal(politicas_anotar, PoliticaDto.politicaAnotarNoFinalizada), 201
@@ -411,10 +412,10 @@ def calcular_progeso_politica(politica_id, usuario_id, consolidar):
 
 
 def guardar_usuario_politica(data):
-    politica_usuario = PoliticaUsuarioRelacion.query.filter_by(
-        politica_id=data['politica_id'],
-        usuario_id=data['usuario_id'],
-        consolidar=data["consolidar"]).first()
+    politica_usuario = PoliticaUsuarioRelacion.query.filter_by(politica_id=data['politica_id'],
+                                                               usuario_id=data['usuario_id'],
+                                                               consolidar=data["consolidar"]).first()
+
     if not politica_usuario:
         nueva_politica_usuario = PoliticaUsuarioRelacion(
             politica_id=data['politica_id'],
@@ -439,9 +440,15 @@ def guardar_usuario_politica(data):
 def actualizar_usuario_politica_asignada(data):
     politica_usuario = PoliticaUsuarioRelacion.query.filter_by(politica_id=data['politica_id'],
                                                                usuario_id=data['usuario_id'],
-                                                               consolidar=False).first()
+                                                               consolidar=data['consolidar']).first()
 
-    if politica_usuario:
+    if not politica_usuario:
+        respuesta = {
+            "estado": "fallido",
+            "mensaje": "Politica usuario no encontrada"
+        }
+        return respuesta, 409
+    else:
         politica_usuario.finalizado = True
         guardar_cambios(politica_usuario)
         respuesta = {
@@ -449,12 +456,6 @@ def actualizar_usuario_politica_asignada(data):
             "mensaje": "Politica usuario actualizada exitosamente"
         }
         return respuesta, 201
-    else:
-        respuesta = {
-            "estado": "fallido",
-            "mensaje": "Politica usuario no encontrada"
-        }
-        return respuesta, 409
 
 
 def politica_lista_para_consolidar(politica_id):
@@ -464,12 +465,11 @@ def politica_lista_para_consolidar(politica_id):
     if not politica_anotadores_consulta:
         return "NO"
     else:
-        listo = False
-        for anotador in politica_anotadores_consulta:
-            if anotador.finalizado:
-                listo = True
-            else:
-                listo = False
+        if all(x.finalizado for x in politica_anotadores_consulta):
+            listo = True
+        else:
+            listo = False
+
         return listo
 
 
