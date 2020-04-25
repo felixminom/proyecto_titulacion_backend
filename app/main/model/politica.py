@@ -25,6 +25,7 @@ class Politica(db.Model):
     url = db.Column(db.String(128), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
     asignada = db.Column(db.Boolean, nullable=False)
+    coeficiente = db.Column(db.Float, nullable=True)
     parrafos = db.relationship("Parrafo", backref=db.backref("politica"))
 
     def __repr__(self):

@@ -346,7 +346,10 @@ def consultar_detalles_anotacion_politica(data):
                 .filter(PoliticaUsuarioRelacion.politica_id == data['politica_id'],
                         PoliticaUsuarioRelacion.consolidar == False).all())
 
-    detallesPolitica.coeficiente = calcular_coeficiente_interanotador(data['politica_id'], usuarios)
+    politica = Politica.query.filter_by(id=data['politica_id']).first()
+
+    detallesPolitica.coeficiente = politica.coeficiente
+
     for usuario in usuarios:
         usuarioAux = AnotacionesUsuarioDetalle()
         usuarioAux.email = usuario[1].email

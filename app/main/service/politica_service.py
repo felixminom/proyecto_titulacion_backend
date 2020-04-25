@@ -1,5 +1,6 @@
 from app.main import db
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
+from app.main.model.usuario import Usuario
 from flask import request
 from flask_restplus import marshal
 from werkzeug.utils import secure_filename
@@ -7,7 +8,7 @@ from ..util.clases_auxiliares import PoliticaMostrar, ParrafoMostrar, ParrafoGua
     PoliticaConsultarParrafos
 from ..util.dto import PoliticaDto
 from ..service.parrafo_service import guardar_parrafo, consultar_num_parrafos_politica, eliminar_parrafos_politica
-from ..service.anotacion_service import consultar_ultima_anotacion_usuario_politica
+from ..service.anotacion_service import consultar_ultima_anotacion_usuario_politica, calcular_coeficiente_interanotador
 import os
 
 EXTENSIONES_PERMITIDAS = {'txt'}
@@ -451,6 +452,25 @@ def actualizar_usuario_politica_asignada(data):
     else:
         politica_usuario.finalizado = True
         guardar_cambios(politica_usuario)
+
+        if politica_lista_para_consolidar(data['politica_id']):
+            usuarios = (db.session.query(PoliticaUsuarioRelacion, Usuario)
+                        .outerjoin(Usuario, PoliticaUsuarioRelacion.usuario_id == Usuario.id)
+                        .filter(PoliticaUsuarioRelacion.politica_id == data['politica_id'],
+                                PoliticaUsuarioRelacion.consolidar == False).all())
+
+            politica = Politica.query.filter_by(id=data['politica_id']).first()
+
+            politica.coeficiente = round(calcular_coeficiente_interanotador(data['politica_id'], usuarios).item(), 2)
+
+            guardar_cambios(politica)
+
+            respuesta = {
+                "estado": "exito",
+                "mensaje": "Politica usuario actualizada exitosamente y coeficiente calculado"
+            }
+            return respuesta, 201
+
         respuesta = {
             "estado": "exito",
             "mensaje": "Politica usuario actualizada exitosamente"
@@ -462,15 +482,14 @@ def politica_lista_para_consolidar(politica_id):
     politica_anotadores_consulta = (db.session.query(PoliticaUsuarioRelacion)
                                     .filter(PoliticaUsuarioRelacion.politica_id == politica_id,
                                             PoliticaUsuarioRelacion.consolidar == False).all())
+
     if not politica_anotadores_consulta:
-        return "NO"
+        return False
     else:
         if all(x.finalizado for x in politica_anotadores_consulta):
-            listo = True
+            return True
         else:
-            listo = False
-
-        return listo
+            return False
 
 
 def guardar_cambios(data):
