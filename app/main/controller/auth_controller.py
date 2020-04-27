@@ -27,7 +27,7 @@ class UsuarioLogout(Resource):
         API Logout de usuario
     """
     @api.doc('logout de usuario')
-    def post(self):
+    def get(self):
         """Salir del sistema"""
         auth_header = request.headers.get('Authorization')
         return Auth.logout_usuario(data=auth_header)
