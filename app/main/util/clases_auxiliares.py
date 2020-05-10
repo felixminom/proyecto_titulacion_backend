@@ -192,3 +192,71 @@ class PoliticaConsultarParrafos:
         self.nombre = nombre
         self.parrafos = parrafos
 
+
+class PoliticasVisualizacionLista:
+    def __init__(self, id, nombre, fecha, total_anotaciones):
+        self.id = id
+        self.nombre = nombre
+        self.fecha = fecha
+        self.total_anotaciones = total_anotaciones
+
+
+class PoliticaVisualizacion:
+    def __init__(self, id, nombre, fecha, parrafos):
+        self.id = id
+        self.nombre = nombre
+        self.fecha = fecha
+        self.parrafos = parrafos
+
+
+class ParrafosVisualizacion:
+    def __init__(self, id, titulo, texto_html, anotaciones):
+        self.id = id
+        self.titulo = titulo
+        self.texto_html = texto_html
+        self.anotaciones = anotaciones
+
+
+class AnotacionVisualizacion:
+    def __init__(self, id, texto_html, comentario, permite, tratamientos):
+        self.id = id
+        self.texto_html = texto_html
+        self.comentario = comentario
+        self.permite = permite
+        self.tratamientos = tratamientos
+
+
+class TratamientoVisualizacion:
+    def __init__(self, tratamiento_id, tratamiento_descripcion,
+                 atributo_id, atributo_descripcion,
+                 valor_id, valor_descripcion, color_primario):
+        self.tratamiento_id = tratamiento_id
+        self.tratamiento_descripcion = tratamiento_descripcion
+        self.atributo_id = atributo_id
+        self.atributo_descripcion = atributo_descripcion
+        self.valor_id = valor_id
+        self.valor_descripcion = valor_descripcion
+        self.color_primario = color_primario
+
+
+class AtributoVisualizacionLista:
+    def __init__(self, id, descripcion, color_primario):
+        self.id = id
+        self.descripcion = descripcion
+        self.color_primario = color_primario
+
+
+class TratamientoVisualizacionLista:
+    def __init__(self, id, descripcion, color_primario, porcentaje, numero_anotaciones, atributos):
+        self.id = id
+        self.descripcion = descripcion
+        self.color_primario = color_primario
+        self.porcentaje = porcentaje
+        self.numero_anotaciones = numero_anotaciones
+        self.atributos = atributos
+
+
+class PoliticaPresentacion:
+    def __init__(self, tratamientos, politica):
+        self.tratamientos = tratamientos
+        self.politica = politica

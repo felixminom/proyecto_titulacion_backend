@@ -11,13 +11,15 @@ from .main.controller.atributo_controller import api as atributo_ns
 from .main.controller.valor_controller import api as valor_ns
 from .main.controller.politica_controller import api as politica_ns
 from .main.controller.anotacion_controller import api as anotacion_ns
+from .main.controller.visualizacion_controller import api as visualizacion_ns
 
 blueprint = Blueprint('api', __name__)
 
 api = Api(blueprint,
           title='Backend herramienta de anotacion',
           version='1.0',
-          description='Herramienta de anotacion para tratamintos de datos de politicas de privacidad en español en un contexto GDPR'
+          description='Herramienta de anotacion para tratamintos de datos de politicas de privacidad '
+                      'en español en un contexto GDPR'
           )
 
 api.add_namespace(auth_ns)
@@ -30,6 +32,7 @@ api.add_namespace(usuario_ns, path='/Usuario')
 api.add_namespace(valor_ns, path='/Valor')
 api.add_namespace(politica_ns, path='/Politica')
 api.add_namespace(anotacion_ns, path='/Anotacion')
+api.add_namespace(visualizacion_ns, path='/Visualizacion')
 
 
 

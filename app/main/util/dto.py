@@ -328,7 +328,7 @@ class AtributoDto:
 
 class TratamientoDto:
     api = Namespace('Tratamiento', description='Operaciones relacionadas a tratamientos')
-    tratamiento = api.model('tratamiento',{
+    tratamiento = api.model('tratamiento', {
         'descripcion': fields.String(required=True, description='descripcion del tratamiento'),
         'color_primario': fields.Integer(required=True, description='id del color')
     })
@@ -354,4 +354,64 @@ class TratamientoDto:
     })
 
 
+class VisualizacionDto:
+    api = Namespace('Visualizacion', description='Operaciones relacionadas a visualizacion de políticas')
 
+    listaPoliticas = api.model('listaPoliticas', {
+        'id': fields.Integer,
+        'nombre': fields.String,
+        'fecha': fields.String,
+        'total_anotaciones': fields.Integer
+    })
+
+    tratamientoVisualizacion = api.model('tratamientoVisualizacion', {
+        'tratamiento_id': fields.Integer,
+        'tratamiento_descripcion': fields.String,
+        'atributo_id': fields.Integer,
+        'atributo_descripcion': fields.String,
+        'valor_id': fields.Integer,
+        'valor_descripcion': fields.String,
+        'color_primario': fields.String
+    })
+
+    anotacionVisualizacion = api.model('anotacionVisualizacion', {
+        'id': fields.Integer,
+        'texto_html': fields.String,
+        'comentario': fields.String,
+        'permite': fields.Boolean,
+        'tratamientos': fields.List(fields.Nested(tratamientoVisualizacion))
+    })
+
+    parrafoVisualizacion = api.model('parrafoVisualizacion', {
+        'id': fields.Integer,
+        'titulo': fields.String,
+        'texto_html': fields.String,
+        'anotaciones': fields.List(fields.Nested(anotacionVisualizacion))
+    })
+
+    politicaVisualizacion = api.model('politicaVisualizacion', {
+        'id': fields.Integer,
+        'nombre': fields.String,
+        'fecha': fields.String,
+        'parrafos': fields.List(fields.Nested(parrafoVisualizacion))
+    })
+
+    atributoVisualizacionLista = api.model('atributoVisualizacionLista', {
+        'id': fields.Integer,
+        'descripcion': fields.String,
+        'color_primario': fields.String,
+    })
+
+    tratamientoVisualizacionLista = api.model('tratamientoVisualizacionLista', {
+        'id': fields.Integer,
+        'descripcion': fields.String,
+        'color_primario': fields.String,
+        'porcentaje': fields.Float,
+        'numero_anotaciones': fields.Integer,
+        'atributos': fields.List(fields.Nested(atributoVisualizacionLista))
+    })
+
+    politicaPresentacion = api.model('politicaPresentacion', {
+        'tratamientos': fields.List(fields.Nested(tratamientoVisualizacionLista)),
+        'politica': fields.Nested(politicaVisualizacion)
+    })
