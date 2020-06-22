@@ -4,23 +4,11 @@ from app.main.model.usuario import Usuario
 from app.main.model.rol_usuario import RolUsuario
 from app.main.util.clases_auxiliares import UsuarioConsultar
 from app.main.util.dto import UsuarioDto
+from app.main.util.gmail.quickstart import enviar_correo
 
 import datetime
 import string
 import random
-import smtplib
-from string import Template
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
-MY_ADDRESS = 'soporte.politicasprivacidad@gmail.com'
-PASSWORD = 'Politicas_2020'
-
-
-def leer_email(filename):
-    with open(filename, 'r', encoding='utf-8') as email_html:
-        email_html_contenido = email_html.read()
-    return Template(email_html_contenido)
 
 
 def clave_aleatoria():
@@ -29,48 +17,31 @@ def clave_aleatoria():
     return ''.join(random.choice(caracteres) for x in range(tamano))
 
 
-def enviar_correo(usuario, clave, rol_usuario):
-    rol_usuario_string = RolUsuario.query.filter_by(id=rol_usuario).first()
-    rol = rol_usuario_string.nombre
-
-    servidor = smtplib.SMTP(host='smtp.gmail.com', port=587)
-    servidor.starttls()
-    servidor.login(MY_ADDRESS, PASSWORD)
-
-    email = MIMEMultipart()
-    email['From'] = MY_ADDRESS
-    email['To'] = usuario
-    email['Subject'] = 'Bienvenido!'
-
-    mensaje_html = leer_email('email.html')
-    mensaje = mensaje_html.safe_substitute(ROL_USUARIO=rol, EMAIL=usuario, CLAVE=clave)
-
-    email.attach(MIMEText(mensaje, 'html'))
-
-    servidor.send_message(email)
-
-    servidor.quit()
-
-
 def guardar_nuevo_usuario(data):
     user = Usuario.query.filter_by(email=data['email']).first()
     if not user:
         clave = clave_aleatoria()
-        enviar_correo(data['email'], clave, data['rol_usuario'])
-        nuevo_usuario = Usuario(
-            email=data['email'],
-            hora_registro=datetime.datetime.now(),
-            rol_usuario=data['rol_usuario'],
-            clave=clave,
-            activo=True,
-            entrenamiento= data['entrenamiento']
-        )
-        guardar_cambios(nuevo_usuario)
-        respuesta = {
-            'estado': 'exito',
-            'mensaje': 'Usuario registrado exitosamente'
-        }
-        return respuesta, 201
+        if enviar_correo(data['email'], clave, data['rol_usuario']):
+            nuevo_usuario = Usuario(
+                email=data['email'],
+                hora_registro=datetime.datetime.now(),
+                rol_usuario=data['rol_usuario'],
+                clave=clave,
+                activo=True,
+                entrenamiento=data['entrenamiento']
+            )
+            guardar_cambios(nuevo_usuario)
+            respuesta = {
+                'estado': 'exito',
+                'mensaje': 'Usuario registrado exitosamente'
+            }
+            return respuesta, 201
+        else:
+            respuesta = {
+                'estado': 'fallido',
+                'mensaje': 'Error al enviar correo. Pongase en contacto con soporte'
+            }
+            return respuesta, 409
     else:
         respuesta = {
             'estado': 'fallido',
