@@ -18,16 +18,15 @@ class Usuario(db.Model):
     entrenamiento = db.Column(db.Boolean)
     anotaciones = db.relationship("Anotacion", backref=db.backref("usuario"))
 
-
     @property
     def password(self):
-        raise AttributeError('password: campo solo de escritura')
+        raise AttributeError('clave: campo solo de escritura')
 
     @password.setter
-    def clave(self,clave):
+    def clave(self, clave):
         self.clave_hash = flask_bcrypt.generate_password_hash(clave).decode('utf-8')
 
-    def comparar_clave(self,clave):
+    def comparar_clave(self, clave):
         return flask_bcrypt.check_password_hash(self.clave_hash, clave)
 
     @staticmethod
@@ -58,13 +57,12 @@ class Usuario(db.Model):
         """
         try:
             payload = jwt.decode(auth_token, key, algorithms='HS256')
-            en_lista_negra = TokenListaNegra.revisar_lista_negra(auth_token)
+            en_lista_negra = TokenListaNegra.verificar_token_lista_negra(auth_token)
             if en_lista_negra:
                 return 'Token en lista negra, por favor inicie sesion nuevamente'
             else:
                 return payload['sub']
-        except jwt.ExpiredSignatureError as e:
-            return '{}'.format(e)
+        except jwt.ExpiredSignatureError:
             return 'Firma expirada, por favor inicie sesion nuevamente'
         except jwt.InvalidTokenError as e:
             return '{}'.format(e)

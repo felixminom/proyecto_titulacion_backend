@@ -1,7 +1,7 @@
-from app.main.model.usuario import Usuario
+from ..model.usuario import Usuario
+from ..model.rol_usuario import RolUsuario
 from ..util.dto import UsuarioDto
 from ..service.lista_negra_service import guardar_token
-from ..model.rol_usuario import RolUsuario
 from ..util.clases_auxiliares import ModuloConsultarHijos, UsuarioConsultarLogin
 from flask_restplus import marshal
 
@@ -9,8 +9,8 @@ usuario = UsuarioConsultarLogin
 usuario.modulos = []
 
 
-def consultar_modulos_hijos(rolUsuario):
-    rol_usuario = RolUsuario.query.filter_by(id=rolUsuario).first()
+def consultar_modulos_hijos(rol_usuario):
+    rol_usuario = RolUsuario.query.filter_by(id=rol_usuario).first()
     i = 0
     usuario.modulos.clear()
     for modulo in rol_usuario.modulos:
@@ -38,13 +38,13 @@ class Auth:
                         'estado': True,
                         'mensaje': 'Sesion iniciada exitosamente',
                         'Authorization': auth_token.decode(),
-                        'usuario': consultar_modulos_hijos(rolUsuario=usuario.rol_usuario)
+                        'usuario': consultar_modulos_hijos(usuario.rol_usuario)
                     }
                     return response_object, 201
             else:
                 response_object = {
                     'estado': 'fallido',
-                    'mensaje': 'email o clave no coinciden'
+                    'mensaje': 'email o hash_clave no coinciden'
                 }
                 return response_object, 401
         except Exception as e:
@@ -97,27 +97,6 @@ class Auth:
                     'mensaje': 'Token valido'
                 }
                 return response_object, 200
-            response_object = {
-                'estado': 'fallido',
-                'mensaje': respuesta
-            }
-            return response_object, 401
-        else:
-            response_object = {
-                'estado': 'fallido',
-                'mensaje': 'Provea un token valido'
-            }
-            return response_object, 401
-
-    @staticmethod
-    def obtener_id_usuario_logeado(data):
-        auth_token = data
-        if auth_token:
-            respuesta = Usuario.decodificar_auth_token(auth_token)
-            if not isinstance(respuesta, str):
-                respuesta
-                print(type(respuesta))
-                return respuesta, 201
             response_object = {
                 'estado': 'fallido',
                 'mensaje': respuesta

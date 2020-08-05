@@ -18,8 +18,8 @@ blueprint = Blueprint('api', __name__)
 api = Api(blueprint,
           title='Backend herramienta de anotacion',
           version='1.0',
-          description='Herramienta de anotacion para tratamintos de datos de politicas de privacidad '
-                      'en español en un contexto GDPR'
+          description='Herramienta de anotación de tratamientos de datos presentes '
+                      'en políticas de privacidad en español'
           )
 
 api.add_namespace(auth_ns)
@@ -33,7 +33,3 @@ api.add_namespace(valor_ns, path='/Valor')
 api.add_namespace(politica_ns, path='/Politica')
 api.add_namespace(anotacion_ns, path='/Anotacion')
 api.add_namespace(visualizacion_ns, path='/Visualizacion')
-
-
-
-

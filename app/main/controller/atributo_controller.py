@@ -1,7 +1,7 @@
 from flask import request
 from flask_restplus import Resource
 from ..util.dto import AtributoDto
-from ..service.atributo_services import guardar_atributo, obtener_todos_atributos, obtener_atributo, \
+from ..service.atributo_service import guardar_atributo, obtener_todos_atributos, \
     obtener_atributos_tratamiento, editar_atributo, eliminar_atributo
 
 api = AtributoDto.api
@@ -46,17 +46,10 @@ class AtributoTratamientoId(Resource):
 
 
 @api.route('/<id>')
-@api.param('id','id de atributo')
+@api.param('id', 'id de atributo')
 @api.response(404, 'Atributo no encontrado')
 class AtributoId(Resource):
-    @api.doc('Obtener atributo')
-    def get(self, id):
-        """obtener atributos por id"""
-        atributo = obtener_atributo(id)
-        return atributo
-
     @api.doc('Eliminar atributo')
     def delete(self, id):
         """Eliminar atributo"""
         return eliminar_atributo(id)
-

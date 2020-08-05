@@ -1,7 +1,6 @@
 from flask_restplus import Resource
 from app.main.util.dto import VisualizacionDto
-from app.main.service.visualizacion_service import consultar_politicas_visualizar, consultar_politica_visualizar, \
-    consultar_tratamientos_lista
+from app.main.service.visualizacion_service import consultar_politicas_visualizar, consultar_politica_visualizar
 
 api = VisualizacionDto.api
 

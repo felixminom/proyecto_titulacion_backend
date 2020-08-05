@@ -93,7 +93,7 @@ def eliminar_usuario(id):
         return respuesta, 201
 
 
-def obtnener_todos_usuarios():
+def obtnener_usuarios():
     db.session.configure(autoflush=False)
     resultado = db.session.query(Usuario.id, Usuario.email, Usuario.activo, Usuario.entrenamiento,
                                  RolUsuario.id, RolUsuario.nombre).\
@@ -108,7 +108,7 @@ def obtnener_todos_usuarios():
     return usuarios
 
 
-def obtener_un_usuario(id):
+def obtener_usuario(id):
     return Usuario.query.filter_by(id=id).first()
 
 
@@ -158,4 +158,3 @@ def generar_token(usuario):
 def guardar_cambios(data):
     db.session.add(data)
     db.session.commit()
-

@@ -13,6 +13,7 @@ import os
 
 EXTENSIONES_PERMITIDAS = {'txt'}
 
+#verificamos sistema operativo
 if os.name == 'nt':
     CARPETA_SUBIDA = os.getcwd() + '\Politicas\\'
 else:
@@ -23,7 +24,7 @@ politica_respuesta.parrafos = []
 
 
 def archivo_permitido(nombre_archivo):
-    return '.' in nombre_archivo and\
+    return '.' in nombre_archivo and \
            nombre_archivo.rsplit('.', 1)[1].lower() in EXTENSIONES_PERMITIDAS
 
 
@@ -200,59 +201,58 @@ def guardar_politica():
     respuesta = request.form.to_dict()
     politica = Politica.query.filter_by(nombre=respuesta.get('nombre')).first()
     if not politica:
-            fecha_aux = respuesta.get('fecha').split('T')[0]
-            nueva_politica = Politica(
-                nombre=respuesta.get('nombre'),
-                url=respuesta.get('url'),
-                fecha=fecha_aux,
-                asignada=False
-            )
+        fecha_aux = respuesta.get('fecha').split('T')[0]
+        nueva_politica = Politica(
+            nombre=respuesta.get('nombre'),
+            url=respuesta.get('url'),
+            fecha=fecha_aux,
+            asignada=False
+        )
 
-            guardar_cambios(nueva_politica)
+        guardar_cambios(nueva_politica)
 
+        # GUARDAR PARRAFOS
+        archivo = request.files['politica']
 
-            #GUARDAR PARRAFOS
-            archivo = request.files['politica']
+        if archivo:
+            if os.path.isdir(CARPETA_SUBIDA):
 
-            if archivo:
-                if os.path.isdir(CARPETA_SUBIDA):
-
-                    if existe_archivo_politica_mismo_nombre(archivo.filename):
-                        respuesta = {
-                            'estado': 'fallido',
-                            'mesaje': 'Existe un archivo con el mismo nombre'
-                        }
-                        return respuesta, 409
-
-                    archivo.filename = archivo.filename.strip().replace(" ", "")
-                    nombre_archivo = secure_filename(archivo.filename)
-
-                    try:
-                        archivo.save(os.path.join(CARPETA_SUBIDA, nombre_archivo))
-                    except:
-                        respuesta = {
-                            'estado': 'fallido',
-                            'mesaje': 'Existe un problema con la creacion del archivo en el servidor'
-                        }
-                        return respuesta, 409
-
-                    politica = abrir_politica(nombre_archivo)
-                    parrafos = separar_parrafos_principales(politica)
-                    politica_procesada = llenar_politica_html(parrafos)
-
-                    i = 0
-                    for parrafo in politica_procesada.parrafos:
-                        parrafo_aux = ParrafoGuardar(i, parrafo.titulo, parrafo.texto, parrafo.texto_html,
-                                                     nueva_politica.id)
-                        guardar_parrafo(parrafo_aux)
-                        i += 1
-
-                    borrar_politica_previsualizacion(archivo)
+                if existe_archivo_politica_mismo_nombre(archivo.filename):
                     respuesta = {
-                        'estado': 'exito',
-                        'mesaje': 'Politica cargada con exito'
+                        'estado': 'fallido',
+                        'mesaje': 'Existe un archivo con el mismo nombre'
                     }
-                    return respuesta, 201
+                    return respuesta, 409
+
+                archivo.filename = archivo.filename.strip().replace(" ", "")
+                nombre_archivo = secure_filename(archivo.filename)
+
+                try:
+                    archivo.save(os.path.join(CARPETA_SUBIDA, nombre_archivo))
+                except:
+                    respuesta = {
+                        'estado': 'fallido',
+                        'mesaje': 'Existe un problema con la creacion del archivo en el servidor'
+                    }
+                    return respuesta, 409
+
+                politica = abrir_politica(nombre_archivo)
+                parrafos = separar_parrafos_principales(politica)
+                politica_procesada = llenar_politica_html(parrafos)
+
+                i = 0
+                for parrafo in politica_procesada.parrafos:
+                    parrafo_aux = ParrafoGuardar(i, parrafo.titulo, parrafo.texto, parrafo.texto_html,
+                                                 nueva_politica.id)
+                    guardar_parrafo(parrafo_aux)
+                    i += 1
+
+                borrar_politica_previsualizacion(archivo)
+                respuesta = {
+                    'estado': 'exito',
+                    'mesaje': 'Politica cargada con exito'
+                }
+                return respuesta, 201
 
     else:
         respuesta = {
@@ -354,12 +354,12 @@ def consultar_politica_parrafos(politica_id):
 
 
 def consultar_politicas_consolidador_no_finalizadas(consolidador_id):
-    politicas_anotar= []
+    politicas_anotar = []
     politicas_anotar_consulta = (db.session.query(PoliticaUsuarioRelacion, Politica)
-                        .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
-                        .filter(PoliticaUsuarioRelacion.usuario_id == consolidador_id,
-                                PoliticaUsuarioRelacion.consolidar == True,
-                                PoliticaUsuarioRelacion.finalizado == False,).all())
+                                 .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
+                                 .filter(PoliticaUsuarioRelacion.usuario_id == consolidador_id,
+                                         PoliticaUsuarioRelacion.consolidar == True,
+                                         PoliticaUsuarioRelacion.finalizado == False, ).all())
 
     if not politicas_anotar_consulta:
         respuesta = {
@@ -409,7 +409,7 @@ def consultar_politicas_anotador_no_finalizadas(usuario_id):
 def calcular_progeso_politica(politica_id, usuario_id, consolidar):
     num_parrafos = consultar_num_parrafos_politica(politica_id)
     ultimo_parrafo_anotado = consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar) + 1
-    return (ultimo_parrafo_anotado/num_parrafos) * 100
+    return round((ultimo_parrafo_anotado / num_parrafos) * 100, 2)
 
 
 def guardar_usuario_politica(data):
@@ -495,8 +495,3 @@ def politica_lista_para_consolidar(politica_id):
 def guardar_cambios(data):
     db.session.add(data)
     db.session.commit()
-
-
-
-
-

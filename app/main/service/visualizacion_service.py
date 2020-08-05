@@ -1,6 +1,6 @@
 from app.main import db
 from app.main.model.politica import Politica, PoliticaUsuarioRelacion
-from app.main.model.anotacion import Anotacion,AnotacionValorRelacion
+from app.main.model.anotacion import Anotacion, AnotacionValorRelacion
 from app.main.model.parrafo import Parrafo
 from app.main.model.tratamiento import Tratamiento
 from app.main.model.atributo import Atributo
@@ -98,7 +98,7 @@ def consultar_tratamientos_lista(politica_id):
             anotaciones = consultar_porcentaje_tratamiento(politica_id, tratamiento.id)
             tratamiento_aux = TratamientoVisualizacionLista(tratamiento.id, tratamiento.descripcion,
                                                             tratamiento.color_tratamiento.codigo,
-                                                            anotaciones/total_anotaciones * 100,
+                                                            anotaciones / total_anotaciones * 100,
                                                             anotaciones,
                                                             atributos)
             tratamientos.append(tratamiento_aux)
@@ -130,7 +130,7 @@ def consultar_total_anotaciones(politica_id):
 
 
 def consultar_total_anotaciones_valor(politica_id):
-    anotaciones = (db.session.query(Anotacion)
+    anotaciones = (db.session.query(Anotacion.id)
                    .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                    .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
                    .filter(Parrafo.politica_id == politica_id,

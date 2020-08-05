@@ -40,9 +40,9 @@ class Politica(Resource):
         return actualizar_politica_asignada(data)
 
 
-@api.route('/<id>', methods=["DELETE"])
+@api.route('/<id>')
 @api.param('id', 'Identificador de la politica')
-@api.response(404,'Politica no encontrado')
+@api.response(404, 'Politica no encontrado')
 class Politica(Resource):
     @api.response(201, 'Politica eliminado con exito')
     @api.doc('Eliminar politica')
@@ -104,4 +104,3 @@ class Politica(Resource):
     @api.doc('Consultar parrafospolitica')
     def get(self, politica_id):
         return consultar_politica_parrafos(politica_id)
-

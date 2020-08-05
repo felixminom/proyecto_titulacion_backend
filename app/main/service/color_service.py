@@ -2,7 +2,7 @@ from app.main import db
 from app.main.model.color import Color
 
 
-def guardar_nuevo_color(color):
+def guardar_color(color):
     color_aux = Color.query.filter_by(codigo=color['codigo']).first()
     if not color_aux:
         nuevo_color = Color(
@@ -10,17 +10,54 @@ def guardar_nuevo_color(color):
             disponible=True
         )
         guardar_cambios(nuevo_color)
-        response_object = {
+        respuesta = {
             'estado': 'exito',
             'mensaje': 'Color creado exitosamente'
         }
-        return response_object, 201
+        return respuesta, 201
     else:
-        response_object = {
+        respuesta = {
             'estado': 'fallido',
             'mensaje': 'El color ya existe, no puede ser creado'
         }
-        return response_object, 409
+        return respuesta, 409
+
+
+def editar_color(color):
+    color_aux = Color.query.filter_by(id=color['id']).first()
+    if not color_aux:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el color'
+        }
+        return respuesta, 409
+    else:
+        color_aux.codigo = color['codigo']
+        guardar_cambios(color_aux)
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Color editado exitosamente'
+        }
+        return respuesta, 201
+
+
+def eliminar_color(id):
+    try:
+        Color.query.filter_by(id=id).delete()
+    except:
+        db.session.rollback()
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el color'
+        }
+        return respuesta, 409
+    else:
+        db.session.commit()
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Color eliminado exitosamente'
+        }
+        return respuesta, 201
 
 
 def obtener_todos_colores():

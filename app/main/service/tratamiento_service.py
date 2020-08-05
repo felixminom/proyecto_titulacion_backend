@@ -2,7 +2,7 @@ from flask_restplus import marshal
 from app.main import db
 from app.main.model.tratamiento import Tratamiento
 from app.main.model.color import Color
-from ..service.atributo_services import obtener_atributos_tratamiento_completo
+from ..service.atributo_service import obtener_atributos_tratamiento_completo
 from ..service.valor_service import obtener_valores_atributo_completo
 from ..util.clases_auxiliares import TratamientoConsultar, TratamientoCompleto, AtributoCompleto
 from ..util.dto import TratamientoDto
@@ -84,7 +84,7 @@ def eliminar_tratamiento(id):
         return respuesta, 200
 
 
-def obtener_todos_tratamientos():
+def obtener_tratamientos():
     tratamientos = [TratamientoConsultar]
     tratamientos_aux = Tratamiento.query.all()
     i = 0
@@ -103,23 +103,6 @@ def obtener_todos_tratamientos():
             tratamientos[i].color_primario_codigo = item.color_tratamiento.codigo
             i += 1
         return marshal(tratamientos, TratamientoDto.tratamientoConsultar), 201
-
-
-def obtener_un_tratamiento(id):
-    tratamiento = TratamientoConsultar
-    tratamiento_aux = Tratamiento.query.filter_by(id=id).first()
-
-    if not tratamiento_aux:
-        respuesta = {
-            'estado': 'fallido',
-            'mensaje': 'No existe tratamientos'
-        }
-        return respuesta, 404
-    else:
-        tratamiento = tratamiento_aux
-        tratamiento.color_id = tratamiento_aux.color_tratamiento.id
-        tratamiento.color_primario_codigo = tratamiento_aux.color_tratamiento.codigo
-        return marshal(tratamiento, TratamientoDto.tratamientoConsultar), 201
 
 
 def obtener_tratamientos_completos():

@@ -88,11 +88,6 @@ def eliminar_anotacion(id):
         return respuesta, 201
 
 
-def obtener_anotaciones_parrafo(parrafo_id):
-    anotaciones = Anotacion.query.filter_by(parrafo_id=parrafo_id).all()
-    return anotaciones
-
-
 def valor_notificacion(valor_id):
     valor = (db.session.query(Valor, Atributo, Tratamiento)
              .outerjoin(Atributo, Valor.atributo_id == Atributo.id)

@@ -4,8 +4,6 @@ mysql_local_base = 'mysql+pymysql://root:Benalcazar_11@127.0.0.1:3306/herramient
 mysql_aws = 'mysql+pymysql://admin:Herramienta_2020@' \
             'herramienta-anotacion.cicb7kkmbijy.us-west-2.rds.amazonaws.com:3306/herramienta_anotacion?charset=utf8mb4'
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'Herramienta_2020')

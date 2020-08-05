@@ -1,7 +1,7 @@
 from flask_restplus import Resource
 from flask import request
 from ..util.dto import AnotacionDto
-from ..service.anotacion_service import guardar_anotacion, obtener_anotaciones_parrafo, \
+from ..service.anotacion_service import guardar_anotacion, \
     consultar_anotaciones_anotadores, obtener_total_anotaciones_parrafo_anotador, \
     obtener_anotaciones_parrafo_usuario, eliminar_anotacion, editar_anotacion, consultar_inconsistencia_notificacion,\
     consultar_detalles_anotacion_politica
@@ -39,7 +39,7 @@ class Anotacion(Resource):
 
 @api.route('/Notificacion')
 class Anotacion(Resource):
-    @api.response(201,'Consultar incosistencia en anotacion')
+    @api.response(201, 'Consultar incosistencia en anotacion')
     @api.doc('Consultar incosistencia en anotacion')
     @api.expect(_anotacionNotificacion, validate=True)
     def post(self):
@@ -48,15 +48,9 @@ class Anotacion(Resource):
 
 
 @api.route('/<id>')
-@api.param('id', 'id del parrafo')
+@api.param('id', 'id de anotación')
 @api.response(404, 'Anotaciones no encontradas')
 class AnotacionConsultar(Resource):
-    @api.doc('Anotacion por id de parrafo')
-    @api.marshal_list_with(_anotacion)
-    def get(self, id):
-        """Lista de anotaciones por parrafo"""
-        return obtener_anotaciones_parrafo(id)
-
     @api.doc('Eliminar anotacion por Id')
     def delete(self, id):
         """Eliminar anotacion"""

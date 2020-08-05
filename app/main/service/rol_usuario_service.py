@@ -5,66 +5,104 @@ from ..util.dto import RolUsuarioDto
 from flask_restplus import marshal
 
 
-def guardar_nuevo_rol(data):
-    rol = RolUsuario.query.filter_by(nombre=data['nombre']).first()
-    if not rol:
+def guardar_rol(rol):
+    rol_aux = RolUsuario.query.filter_by(nombre=rol['nombre']).first()
+    if not rol_aux:
         nuevo_rol = RolUsuario(
-            nombre= data['nombre'],
-            descripcion=data['descripcion']
+            nombre=rol['nombre'],
+            descripcion=rol['descripcion']
         )
         guardar_cambios(nuevo_rol)
-        response_object = {
+        respuesta = {
             'estado': 'exito',
             'mensaje': 'Rol de usuario registrado exitosamente.'
         }
-        return response_object,201
+        return respuesta, 201
     else:
-        response_object = {
+        respuesta = {
             'estado': 'fallido',
             'mensaje': 'El rol de usuario ya existe'
         }
-        return response_object, 409
+        return respuesta, 409
 
 
-def obtener_todos_roles():
+def editar_rol(rol):
+    rol_aux = RolUsuario.query.filter_by(id=rol['id']).first()
+    if not rol_aux:
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el rol de usuario'
+        }
+        return respuesta, 409
+    else:
+        rol_aux.nombre = rol['nombre']
+        rol_aux.descripcion = rol['descripcion']
+        guardar_cambios(rol_aux)
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Rol de usuario editado exitosamente'
+        }
+        return respuesta, 201
+
+
+def eliminar_rol(id):
+    try:
+        RolUsuario.query.filter_by(id=id).delete()
+    except:
+        db.session.rollback()
+        respuesta = {
+            'estado': 'fallido',
+            'mensaje': 'No existe el rol de usuario'
+        }
+        return respuesta, 409
+    else:
+        db.session.commit()
+        respuesta = {
+            'estado': 'exito',
+            'mensaje': 'Rol de usuario eliminado exitosamente'
+        }
+        return respuesta, 201
+
+
+def obtener_roles():
     return RolUsuario.query.all()
 
 
-def obtener_un_rol(id):
+def obtener_rol(id):
     return RolUsuario.query.filter_by(id=id).first()
 
 
-def guardar_rol_modulo(data):
-    rol = RolUsuario.query.filter_by(id=data['rol_id']).first()
+def guardar_rol_modulo(modulo):
+    rol = RolUsuario.query.filter_by(id=modulo['rol_id']).first()
     if rol:
-        modulo = Modulo.query.filter_by(id=data['modulo_id']).first()
+        modulo = Modulo.query.filter_by(id=modulo['modulo_id']).first()
         if modulo:
             if modulo.padre_id == 1:
                 rol.modulos += [modulo]
                 guardar_cambios(rol)
-                response_object = {
+                respuesta = {
                     'estado': 'exito',
                     'mensaje': 'Modulo agregado a Rol de usuario exitosamente'
                 }
-                return response_object, 201
+                return respuesta, 201
             else:
-                response_object = {
+                respuesta = {
                     'estado': 'fallido',
                     'mensaje': 'El modulo debe ser de PRIMER NIVEL para ser agregado a un Rol'
                 }
-                return response_object, 409
+                return respuesta, 409
         else:
-            response_object = {
+            respuesta = {
                 'estado': 'fallido',
                 'mensaje': 'Modulo no encontrado'
             }
-            return response_object, 409
+            return respuesta, 409
     else:
-        response_object = {
+        respuesta = {
             'estado': 'fallido',
             'mensaje': 'Rol de usuario no encontrado'
         }
-        return response_object, 409
+        return respuesta, 409
 
 
 def obtener_modulo_rol(rol_id):

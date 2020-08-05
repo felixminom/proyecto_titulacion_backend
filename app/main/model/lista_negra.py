@@ -20,8 +20,7 @@ class TokenListaNegra(db.Model):
         return '<id: token: {}>'.format(self.token)
 
     @staticmethod
-    def revisar_lista_negra(auth_token):
-        #chequear si el token de auth ha sido puesto en lista negra
+    def verificar_token_lista_negra(auth_token):
         resultado = TokenListaNegra.query.filter_by(token=str(auth_token)).first()
         if resultado:
             return True

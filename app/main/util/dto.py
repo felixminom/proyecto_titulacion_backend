@@ -12,11 +12,16 @@ class AuthDto:
 class ColorDto:
 
     api = Namespace('Color', description='Operaciones relacionadas a paleta de colores para anotaciones')
-    color = api.model('color',{
+    color = api.model('color', {
         'codigo': fields.String(required=True, description='codigo hexadecimal del color')
     })
 
-    colorConsultar = api.model('colorConsultar',{
+    colorEditar = api.model('colorEditar', {
+        'id': fields.Integer(required=True, descripcion='id del color'),
+        'codigo': fields.String(required=True, description='codigo hexadecimal del color')
+    })
+
+    colorConsultar = api.model('colorConsultar', {
         'id': fields.Integer(required=True, descripcion='id del color'),
         'codigo': fields.String(description='codigo hexadecimal del color'),
         'disponible': fields.Boolean(description='color disponible')
@@ -29,13 +34,23 @@ class ModuloDto:
     modulo = api.model('modulo', {
         'nombre': fields.String(required=True, description='nombre del modulo(unico)'),
         'icono': fields.String(required=True, description='icono para menu'),
+        'path': fields.String(required=True, description='ruta del modulo'),
         'padre_id': fields.Integer(required=True, description='id del modulo padre, NULL para modulo sin padre')
     })
 
-    moduloConsultar = api.model('moduloConsultar', {
-        'id' : fields.Integer (required = True, description ='id del modulo'),
+    moduloEditar = api.model('moduloEditar', {
+        'id': fields.Integer(required=True, description='id del modulo'),
         'nombre': fields.String(required=True, description='nombre del modulo'),
         'icono': fields.String(required=True, description='icono para menu'),
+        'path': fields.String(required=True, description='ruta del modulo'),
+        'padre_id': fields.Integer(required=True, description='id del modulo padre')
+    })
+
+    moduloConsultar = api.model('moduloConsultar', {
+        'id': fields.Integer(required=True, description='id del modulo'),
+        'nombre': fields.String(required=True, description='nombre del modulo'),
+        'icono': fields.String(required=True, description='icono para menu'),
+        'path': fields.String(required=True, description='ruta del modulo'),
         'padre_id': fields.Integer(required=True, description='id del modulo padre')
     })
 
@@ -43,7 +58,7 @@ class ModuloDto:
         'nombre': fields.String,
         'icono': fields.String,
         'path': fields.String,
-        'hijos': fields.List(fields.Nested(api.model('hijos',{
+        'hijos': fields.List(fields.Nested(api.model('hijos', {
             'nombre': fields.String,
             'icono': fields.String,
             'path': fields.String
@@ -85,7 +100,7 @@ class AnotacionDto:
         'comentario': fields.String,
         'parrafo_id': fields.Integer(required=True),
         'usuario_id': fields.Integer(required=True),
-        'consolidar' : fields.Boolean(required=True),
+        'consolidar': fields.Boolean(required=True),
         'permite': fields.Boolean(required=True),
         'valores': fields.List(fields.Nested(anotacionValor))
     })
@@ -147,7 +162,7 @@ class AnotacionDto:
 class ParrafoDto:
     api = Namespace('Parrafo', description='Operaciones relacionadas a parrafos')
     parrafoMostrar = api.model('parrafoMostrar', {
-        'id' : fields.Integer,
+        'id': fields.Integer,
         'titulo': fields.String,
         'texto_html': fields.String
     })
@@ -182,7 +197,7 @@ class PoliticaDto:
         'consolidar': fields.Boolean(required=True)
     })
 
-    politicaAnotarNoFinalizada = api.model('PoliticaAnotarNoFinalizada',{
+    politicaAnotarNoFinalizada = api.model('PoliticaAnotarNoFinalizada', {
         'politica_id': fields.Integer(required=True),
         'politica_nombre': fields.String(required=True),
         'progreso': fields.Float(required=True)
@@ -197,22 +212,28 @@ class PoliticaDto:
 class RolUsuarioDto:
     api = Namespace('RolUsuario', description='Operaciones relacionadas a roles de usuario')
     rolUsuario = api.model('rolUsuario', {
-        'nombre': fields.String(required=True, description= 'nombre del rol de usuario'),
-        'descripcion': fields.String(required=True, description = 'descripcion del rol en el sistema')
-    })
-
-    rolUsuarioConsultar = api.model ('rolUsuarioConsultar', {
-        'id' : fields.Integer(required = True, description = 'id del rol'),
         'nombre': fields.String(required=True, description='nombre del rol de usuario'),
         'descripcion': fields.String(required=True, description='descripcion del rol en el sistema')
     })
 
-    rolUsuarioModulo = api.model('rolUsuarioModulo',{
-        'rol_id': fields.Integer(required = True, description = 'id del rol de usuario'),
-        'modulo_id':  fields.Integer(required = True, description = 'id del modulo asignado al rol')
+    rolUsuarioEditar = api.model('rolUsuarioEditar', {
+        'id': fields.Integer(required=True, description='id del rol'),
+        'nombre': fields.String(required=True, description='nombre del rol de usuario'),
+        'descripcion': fields.String(required=True, description='descripcion del rol en el sistema')
     })
 
-    rolUsuarioModuloCosultar = api.model('rolUsuarioModuloCosultar',{
+    rolUsuarioConsultar = api.model('rolUsuarioConsultar', {
+        'id': fields.Integer(required=True, description='id del rol'),
+        'nombre': fields.String(required=True, description='nombre del rol de usuario'),
+        'descripcion': fields.String(required=True, description='descripcion del rol en el sistema')
+    })
+
+    rolUsuarioModulo = api.model('rolUsuarioModulo', {
+        'rol_id': fields.Integer(required=True, description='id del rol de usuario'),
+        'modulo_id':  fields.Integer(required=True, description='id del modulo asignado al rol')
+    })
+
+    rolUsuarioModuloCosultar = api.model('rolUsuarioModuloCosultar', {
         'id': fields.Integer(required=True, description='id del rol'),
         'nombre': fields.String(required=True, description='nombre del rol de usuario'),
         'descripcion': fields.String(required=True, description='descripcion del rol en el sistema'),
@@ -222,7 +243,7 @@ class RolUsuarioDto:
 
 class UsuarioDto:
     api = Namespace('Usuario', description='Operaciones relacionadas a usuarios ')
-    usuario = api.model('usuario',{
+    usuario = api.model('usuario', {
         'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
         'rol_usuario': fields.Integer(required=True, description='rol de usuario'),
         'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
@@ -250,7 +271,7 @@ class UsuarioDto:
         'entrenamiento': fields.Boolean
     })
 
-    usuarioConsultarLogin = api.model('usuarioConsultarLogin',{
+    usuarioConsultarLogin = api.model('usuarioConsultarLogin', {
         'id': fields.Integer(description='id de usuario'),
         'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
         'rol_usuario': fields.String(required=True, description='rol de usuario'),
@@ -306,7 +327,7 @@ class AtributoDto:
     })
 
     atributoEditar = api.model('atributoEditar', {
-        'id': fields.Integer(required=True, description ='id del atributo'),
+        'id': fields.Integer(required=True, description='id del atributo'),
         'descripcion': fields.String(required=True, description='nombre del atributo')
     })
 
