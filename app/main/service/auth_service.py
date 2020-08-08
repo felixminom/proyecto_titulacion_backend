@@ -63,8 +63,7 @@ class Auth:
             auth_token = ''
         if auth_token:
             respuesta = Usuario.decodificar_auth_token(auth_token)
-            if not isinstance(respuesta,str):
-                #guardar token en lista negra
+            if not isinstance(respuesta, str):
                 return guardar_token(token=auth_token, usuario_id=respuesta)
             else:
                 response_object = {

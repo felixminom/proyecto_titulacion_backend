@@ -139,7 +139,8 @@ def consultar_inconsistencia_notificacion(data):
             i += 1
 
         notificacion = AnotacionNotificacionConsultar(any(x > parrafo_secuencia.secuencia
-                                                      for x in usuarios_ultimo_parrafo),
+                                                      for x in usuarios_ultimo_parrafo) or
+                                                      any(x.finalizado == True for x in usuarios_anotadores),
                                                       valores_no_consistentes,
                                                       [])
 

@@ -300,14 +300,14 @@ def eliminar_politica(id):
         db.session.rollback()
         respuesta = {
             'estado': 'fallido',
-            'mensaje': 'Error eliminando politica'
+            'mensaje': 'Error eliminando política'
         }
         return respuesta, 409
     else:
         db.session.commit()
         respuesta = {
             'estado': 'exito',
-            'mensaje': 'Politica eliminada con exito'
+            'mensaje': 'Política eliminada con exito'
         }
         return respuesta, 201
 

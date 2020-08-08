@@ -243,23 +243,11 @@ class RolUsuarioDto:
 
 class UsuarioDto:
     api = Namespace('Usuario', description='Operaciones relacionadas a usuarios ')
+
     usuario = api.model('usuario', {
         'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
-        'rol_usuario': fields.Integer(required=True, description='rol de usuario'),
+        'rol_usuario_id': fields.Integer(required=True, description='rol de usuario'),
         'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
-    })
-
-    usuarioEditar = api.model('usuarioEditar', {
-        'id': fields.Integer(required=True),
-        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
-        'rol_usuario': fields.Integer(required=True, description='rol de usuario'),
-        'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?'),
-        'activo': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
-    })
-
-    usuarioConsultarAsignacion = api.model('usuarioConsultarAsignacion', {
-        'id': fields.Integer,
-        'email': fields.String
     })
 
     usuarioConsultar = api.model('usuarioConsultar', {
@@ -269,6 +257,19 @@ class UsuarioDto:
         'rol_usuario': fields.String,
         'activo': fields.Boolean,
         'entrenamiento': fields.Boolean
+    })
+
+    usuarioEditar = api.model('usuarioEditar', {
+        'id': fields.Integer(required=True),
+        'email': fields.String(required=True, description='direccion de email de usuario/nombre de usuario'),
+        'rol_usuario_id': fields.Integer(required=True, description='rol de usuario'),
+        'entrenamiento': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?'),
+        'activo': fields.Boolean(required=True, description='el usuario sera sometido a entrenamiento?')
+    })
+
+    usuarioConsultarAsignacion = api.model('usuarioConsultarAsignacion', {
+        'id': fields.Integer,
+        'email': fields.String
     })
 
     usuarioConsultarLogin = api.model('usuarioConsultarLogin', {

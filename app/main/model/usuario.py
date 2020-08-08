@@ -19,10 +19,10 @@ class Usuario(db.Model):
     anotaciones = db.relationship("Anotacion", backref=db.backref("usuario"))
 
     @property
-    def password(self):
+    def clave(self):
         raise AttributeError('clave: campo solo de escritura')
 
-    @password.setter
+    @clave.setter
     def clave(self, clave):
         self.clave_hash = flask_bcrypt.generate_password_hash(clave).decode('utf-8')
 
@@ -31,10 +31,6 @@ class Usuario(db.Model):
 
     @staticmethod
     def codificar_auth_token(usuario_id):
-        """
-        Genera el token de autenticacion
-        :return: string
-        """
         try:
             payload = {
                 'iat': datetime.datetime.utcnow(),
@@ -50,11 +46,6 @@ class Usuario(db.Model):
 
     @staticmethod
     def decodificar_auth_token(auth_token):
-        """
-        Decodifica el token de autorizacion
-        :param auth_token:
-        :return: integer|string
-        """
         try:
             payload = jwt.decode(auth_token, key, algorithms='HS256')
             en_lista_negra = TokenListaNegra.verificar_token_lista_negra(auth_token)
