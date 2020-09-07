@@ -15,7 +15,11 @@ DIRECCION_ORIGEN = "soporte.politicasprivacidad@gmail.com"
 
 
 def leer_email():
-    os.chdir("C:\\Users\\Felix Mino\\Documents\\GitHub\\proyecto_titulacion\\Backend\\app\\main\\util\\gmail")
+    if os.name == 'nt':
+        os.chdir(os.getcwd() + '\\app\\main\\util\\gmail')
+    else:
+        os.chdir(os.getcwd() + '/app/main/util/gmail')
+
     with open('email.html', 'r', encoding='utf-8') as email_html:
         email_html_contenido = email_html.read()
     return Template(email_html_contenido)
