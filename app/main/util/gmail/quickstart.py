@@ -13,17 +13,18 @@ from string import Template
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 DIRECCION_ORIGEN = "soporte.politicasprivacidad@gmail.com"
 
+ruta_windows = os.getcwd() + '\\app\\main\\util\\gmail'
+ruta_linux = os.getcwd() + '/app/main/util/'
 
 def leer_email():
     if os.name == 'nt':
-        os.chdir(os.getcwd() + '\\app\\main\\util\\gmail')
+        with open(ruta_windows+'/email.html', 'r', encoding='utf-8') as email_html:
+            email_html_contenido = email_html.read()
+            return Template(email_html_contenido)
     else:
-        os.chdir(os.getcwd() + '/app/main/util/gmail')
-
-    with open('email.html', 'r', encoding='utf-8') as email_html:
-        email_html_contenido = email_html.read()
-    return Template(email_html_contenido)
-
+        with open(ruta_linux+'/email.html', 'r', encoding='utf-8') as email_html:
+            email_html_contenido = email_html.read()
+            return Template(email_html_contenido)
 
 def crear_mensaje(usuario, clave, rol_usuario):
     rol_usuario_string = RolUsuario.query.filter_by(id=rol_usuario).first()
