@@ -13,18 +13,16 @@ from string import Template
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 DIRECCION_ORIGEN = "soporte.politicasprivacidad@gmail.com"
 
-ruta_windows = os.getcwd() + '\\app\\main\\util\\gmail'
+ruta_windows = os.getcwd() + '\\app\\main\\util\\gmail\\'
 ruta_linux = os.getcwd() + '/app/main/util/gmail/'
 
+
 def leer_email():
-    if os.name == 'nt':
-        with open(ruta_windows+'email.html', 'r', encoding='utf-8') as email_html:
-            email_html_contenido = email_html.read()
-            return Template(email_html_contenido)
-    else:
-        with open(ruta_linux+'email.html', 'r', encoding='utf-8') as email_html:
-            email_html_contenido = email_html.read()
-            return Template(email_html_contenido)
+    with open(ruta_windows + 'email.html' if os.name == 'nt' else ruta_linux + 'email.html',
+              'r', encoding='utf-8') as email_html:
+        email_html_contenido = email_html.read()
+        return Template(email_html_contenido)
+
 
 def crear_mensaje(usuario, clave, rol_usuario):
     rol_usuario_string = RolUsuario.query.filter_by(id=rol_usuario).first()
@@ -57,7 +55,7 @@ def enviar_correo(usuario, clave, rol_usuario):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                ruta_windows + 'credentials.json' if os.name == 'nt' else ruta_linux + 'credentials.json', SCOPES)
             creds = flow.run_local_server(port=8080)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
