@@ -285,7 +285,7 @@ def consultar_anotaciones_usuario(politica_id, secuencia, usuario_id, consolidar
 def consultar_inconsistencia(politica_id, secuencia, usuarios):
     anotaciones_tuplas = []
     for usuario in usuarios:
-        anotaciones_parrafo = (db.session.query(Anotacion, AnotacionValorRelacion, Valor, Atributo, Tratamiento, Parrafo)
+        anotaciones_parrafo = (db.session.query(Anotacion, AnotacionValorRelacion)
                                .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                                .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
                                .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
@@ -294,11 +294,12 @@ def consultar_inconsistencia(politica_id, secuencia, usuarios):
                                .filter(Parrafo.politica_id == politica_id,
                                        Parrafo.secuencia == secuencia,
                                        Anotacion.usuario_id == usuario[1].id,
-                                       Anotacion.consolidar == False).all())
+                                       Anotacion.consolidar == False)
+                               .order_by(AnotacionValorRelacion.valor_id).all())
         i = 0
         anotacion_usuario = []
         for anotacion in anotaciones_parrafo:
-            tupla = (anotacion[4].id, anotacion[3].id, anotacion[2].id, anotacion[0].permite)
+            tupla = (anotacion[1].valor_id, anotacion[0].permite)
             anotacion_usuario.insert(i, tupla)
             i += 1
         anotaciones_tuplas.append(anotacion_usuario)
@@ -410,19 +411,18 @@ def calcular_coeficiente_interanotador(politica_id, usuarios):
 
     numero_parrafos_no_anotados= numero_parrafos_totales - numero_parrafos_anotados
 
-    if numero_parrafos_no_anotados != 0:
-        for i in range(0, numero_parrafos_no_anotados):
+    if numero_parrafos_no_anotados == 0:
+        if all(x == datos_matriz[0] for x in datos_matriz):
             for usuario in datos_matriz:
                 usuario.append(0)
     else:
-        if all(x == datos_matriz[0] for x in datos_matriz):
-            print("toy chiquito")
+        for i in range(0, numero_parrafos_no_anotados):
             for usuario in datos_matriz:
                 usuario.append(0)
 
     datos_de_fiabilidad = array(datos_matriz)
 
-    return krippendorff.alpha(reliability_data=datos_de_fiabilidad, level_of_measurement='nominal') * 100 
+    return krippendorff.alpha(reliability_data=datos_de_fiabilidad, level_of_measurement='nominal')
 
 
 def lista_unica(lista):

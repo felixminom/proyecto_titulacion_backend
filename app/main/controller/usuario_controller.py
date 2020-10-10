@@ -67,5 +67,4 @@ class Usuario(Resource):
     @api.response(201, 'Administradores')
     @api.doc('Obtener administradores para asignar')
     def get(self):
-        """Obtener Administradores"""
         return obtener_administradores_activos()
