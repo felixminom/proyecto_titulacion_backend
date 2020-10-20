@@ -43,10 +43,9 @@ def consultar_politica_visualizar(politica_id):
         for parrafo in parrafos_consulta:
             anotaciones = []
             anotaciones_consulta = Anotacion.query.filter_by(parrafo_id=parrafo.id, consolidar=True).all()
-            tratamientos = []
 
             for anotacion in anotaciones_consulta:
-
+                tratamientos = []
                 tratamientos_consulta = (db.session.query(AnotacionValorRelacion, Tratamiento, Atributo, Valor)
                                          .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
                                          .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
