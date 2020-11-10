@@ -77,11 +77,7 @@ def obtener_todos_atributos():
     i = 0
     atributos.clear()
     if not atributos_consultar:
-        respuesta = {
-            'estado': 'Fallido',
-            'mensaje': 'No existen valores'
-        }
-        return respuesta, 404
+        return [], 201
     else:
         for item in atributos_consultar:
             atributos.insert(i, item[0])
@@ -98,11 +94,7 @@ def obtener_atributos_tratamiento(tratamiento_id):
     i = 0
     atributos.clear()
     if not atributos_consultar:
-        response_object = {
-            'estado': 'fallido',
-            'mensaje': 'No existen atributos para este tratamiento'
-        }
-        return response_object, 404
+        return [], 201
     else:
         for item in atributos_consultar:
             atributos.insert(i, item[0])

@@ -230,11 +230,7 @@ def obtener_anotaciones_parrafo_usuario(data):
                                      Anotacion.consolidar == data['consolidar']).all())
 
     if not anotaciones_consultar:
-        respuesta = {
-            'estado': 'fallido',
-            'mensaje': 'no existen anotaciones para este parrafo'
-        }
-        return respuesta, 404
+        return [], 201
     else:
         i = 0
         for item in anotaciones_consultar:

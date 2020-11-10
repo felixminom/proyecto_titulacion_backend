@@ -91,11 +91,7 @@ def obtener_tratamientos():
     tratamientos.clear()
 
     if not tratamientos_aux:
-        respuesta = {
-            'estado': 'fallido',
-            'mensaje': 'No existe tratamientos'
-        }
-        return respuesta, 404
+        return [], 201
     else:
         for item in tratamientos_aux:
             tratamientos.insert(i, item)

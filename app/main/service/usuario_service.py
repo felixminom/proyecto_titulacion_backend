@@ -94,9 +94,7 @@ def obtener_usuario(id):
 def obtener_anotadores_activos():
     anotadores_consulta = Usuario.query.filter_by(activo=True).all()
     if not anotadores_consulta:
-        mensaje = respuesta(False, 'Ocurrio un error, por favor intente de nuevo')
-        return respuesta, 404
-
+        return [], 201
     else:
         return marshal(anotadores_consulta, UsuarioDto.usuarioConsultarAsignacion), 201
 
@@ -104,9 +102,7 @@ def obtener_anotadores_activos():
 def obtener_administradores_activos():
     administradores_consultar = Usuario.query.filter_by(rol_usuario=1, activo=True).all()
     if not administradores_consultar:
-        mensaje = respuesta(False, 'No existen administradores')
-        return mensaje, 404
-
+        return [], 201
     else:
         return marshal(administradores_consultar, UsuarioDto.usuarioConsultarAsignacion), 201
 

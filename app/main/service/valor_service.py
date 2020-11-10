@@ -79,11 +79,7 @@ def obtener_valores_atributo(atributo_id):
     i = 0
     valores.clear()
     if not valores_consultar:
-        respuesta = {
-            'estado': 'Fallido',
-            'mensaje': 'No existen valores'
-        }
-        return respuesta, 404
+        return [], 201
     else:
         for item in valores_consultar:
             valores.insert(i, item[0])
