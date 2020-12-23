@@ -422,6 +422,7 @@ class VisualizacionDto:
         'id': fields.Integer,
         'descripcion': fields.String,
         'color_primario': fields.String,
+        'numero_anotaciones': fields.Integer
     })
 
     tratamientoVisualizacionLista = api.model('tratamientoVisualizacionLista', {

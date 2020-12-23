@@ -89,12 +89,15 @@ def consultar_tratamientos_lista(politica_id):
             valores = Valor.query.filter_by(atributo_id=atributo.id).all()
 
             if valores:
-                atributo_aux = AtributoVisualizacionLista(atributo.id, atributo.descripcion,
-                                                          tratamiento.color_tratamiento.codigo)
+                anotaciones_atributo = consultar_total_anotaciones_atributo(politica_id, atributo.id)
+                atributo_aux = AtributoVisualizacionLista(atributo.id,
+                                                          atributo.descripcion,
+                                                          tratamiento.color_tratamiento.codigo,
+                                                          anotaciones_atributo)
                 atributos.append(atributo_aux)
 
         if atributos:
-            anotaciones = consultar_porcentaje_tratamiento(politica_id, tratamiento.id)
+            anotaciones = consultar_total_anotaciones_tratamiento(politica_id, tratamiento.id)
             tratamiento_aux = TratamientoVisualizacionLista(tratamiento.id, tratamiento.descripcion,
                                                             tratamiento.color_tratamiento.codigo,
                                                             anotaciones / total_anotaciones * 100,
@@ -105,7 +108,7 @@ def consultar_tratamientos_lista(politica_id):
     return tratamientos
 
 
-def consultar_porcentaje_tratamiento(politica_id, tratamiento_id):
+def consultar_total_anotaciones_tratamiento(politica_id, tratamiento_id):
     anotaciones_total = (db.session.query(Anotacion)
                          .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                          .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
@@ -114,6 +117,19 @@ def consultar_porcentaje_tratamiento(politica_id, tratamiento_id):
                          .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
                          .filter(Parrafo.politica_id == politica_id,
                                  Tratamiento.id == tratamiento_id,
+                                 Anotacion.consolidar == True).count())
+
+    return anotaciones_total
+
+
+def consultar_total_anotaciones_atributo(politica_id, atributo_id):
+    anotaciones_total = (db.session.query(Anotacion)
+                         .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
+                         .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
+                         .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
+                         .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
+                         .filter(Parrafo.politica_id == politica_id,
+                                 Atributo.id == atributo_id,
                                  Anotacion.consolidar == True).count())
 
     return anotaciones_total

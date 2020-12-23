@@ -2,7 +2,7 @@ import os
 
 mysql_local_base = 'mysql+pymysql://root:Benalcazar_11@127.0.0.1:3306/herramienta_anotacion?charset=utf8mb4'
 mysql_aws = 'mysql+pymysql://admin:Herramienta_2020@' \
-            'herramienta-anotacion.cicb7kkmbijy.us-west-2.rds.amazonaws.com:3306/herramienta_anotacion?charset=utf8mb4'
+            'herramienta-anotacion.cicb7kkmbijy.us-west-2.rds.amazonaws.com:3306/herramienta_anotacion_epn?charset=utf8mb4'
 
 
 class Config:

@@ -240,10 +240,11 @@ class TratamientoVisualizacion:
 
 
 class AtributoVisualizacionLista:
-    def __init__(self, id, descripcion, color_primario):
+    def __init__(self, id, descripcion, color_primario, numero_anotaciones):
         self.id = id
         self.descripcion = descripcion
         self.color_primario = color_primario
+        self.numero_anotaciones = numero_anotaciones
 
 
 class TratamientoVisualizacionLista:
