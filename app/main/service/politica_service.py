@@ -362,11 +362,7 @@ def consultar_politicas_consolidador_no_finalizadas(consolidador_id):
                                          PoliticaUsuarioRelacion.finalizado == False, ).all())
 
     if not politicas_anotar_consulta:
-        respuesta = {
-            "estado": "fallido",
-            "mensaje": "El usuario no tiene politicas por consolidar"
-        }
-        return respuesta, 409
+        return [], 201
     else:
         i = 0
         for item in politicas_anotar_consulta:
@@ -390,11 +386,7 @@ def consultar_politicas_anotador_no_finalizadas(usuario_id):
                                     PoliticaUsuarioRelacion.finalizado == False).all())
 
     if not politicas_anotar_sql:
-        respuesta = {
-            "estado": "fallido",
-            "mensaje": "El usuario no tiene politicas por anotar"
-        }
-        return respuesta, 409
+        return [], 201
     else:
         i = 0
         politicas_anotar.clear()
