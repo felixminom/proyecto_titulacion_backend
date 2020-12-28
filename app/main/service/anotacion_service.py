@@ -29,7 +29,7 @@ def guardar_anotacion(data):
         parrafo_id=data['parrafo_id'],
         usuario_id=data['usuario_id'],
         consolidar=data['consolidar'],
-        permite=data['permite']
+        ejecuta=data['ejecuta']
     )
     guardar_cambios(nueva_anotacion)
 
@@ -59,7 +59,7 @@ def editar_anotacion(data):
         anotacion.texto = data['texto']
         anotacion.texto_html = data['texto_html']
         anotacion.comentario = data['comentario']
-        anotacion.permite = data['permite']
+        anotacion.ejecuta = data['ejecuta']
         guardar_cambios(anotacion)
         respuesta = {
             'estado': 'exito',
@@ -104,7 +104,7 @@ def consultar_inconsistencia_notificacion(data):
                             .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
                             .outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
                             .filter(Anotacion.parrafo_id == data['parrafo_id'],
-                                    Anotacion.permite == data['permite'],
+                                    Anotacion.ejecuta == data['ejecuta'],
                                     Anotacion.usuario_id != data['usuario_id'])
                             .order_by(Tratamiento.id).all())
 
@@ -295,7 +295,7 @@ def consultar_inconsistencia(politica_id, secuencia, usuarios):
         i = 0
         anotacion_usuario = []
         for anotacion in anotaciones_parrafo:
-            tupla = (anotacion[1].valor_id, anotacion[0].permite)
+            tupla = (anotacion[1].valor_id, anotacion[0].ejecuta)
             anotacion_usuario.insert(i, tupla)
             i += 1
         anotaciones_tuplas.append(anotacion_usuario)
@@ -367,7 +367,7 @@ def calcular_coeficiente_interanotador(politica_id, usuarios):
     lista_anotaciones_usuarios = []
 
     for usuario in usuarios:
-        valores = (db.session.query(Anotacion.permite.distinct(), AnotacionValorRelacion.valor_id)
+        valores = (db.session.query(Anotacion.ejecuta.distinct(), AnotacionValorRelacion.valor_id)
                    .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                    .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
                    .outerjoin(Politica, Parrafo.politica_id == Politica.id)

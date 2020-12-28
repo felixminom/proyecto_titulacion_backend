@@ -60,7 +60,7 @@ def consultar_politica_visualizar(politica_id):
                     tratamientos.append(tratamiento_aux)
 
                 anotacion_aux = AnotacionVisualizacion(anotacion.id, anotacion.texto_html, anotacion.comentario,
-                                                       anotacion.permite, tratamientos)
+                                                       anotacion.ejecuta, tratamientos)
                 anotaciones.append(anotacion_aux)
 
             parrafo_aux = ParrafosVisualizacion(parrafo.id, parrafo.titulo, parrafo.texto_html, anotaciones)

@@ -218,11 +218,11 @@ class ParrafosVisualizacion:
 
 
 class AnotacionVisualizacion:
-    def __init__(self, id, texto_html, comentario, permite, tratamientos):
+    def __init__(self, id, texto_html, comentario, ejecuta, tratamientos):
         self.id = id
         self.texto_html = texto_html
         self.comentario = comentario
-        self.permite = permite
+        self.ejecuta = ejecuta
         self.tratamientos = tratamientos
 
 

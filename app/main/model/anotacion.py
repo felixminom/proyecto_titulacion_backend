@@ -22,7 +22,7 @@ class Anotacion(db.Model):
     parrafo_id = db.Column(db.Integer, db.ForeignKey('parrafo.id'))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     consolidar = db.Column(db.Boolean, nullable=False, default=False)
-    permite = db.Column(db.Boolean, nullable=False)
+    ejecuta = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<anotacion: {}>'.format(self.id, self.permite, self.consolidar)
+        return '<anotacion: {}>'.format(self.id, self.ejecuta, self.consolidar)

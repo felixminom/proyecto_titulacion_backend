@@ -90,7 +90,7 @@ class AnotacionDto:
     anotacionNotificacion = api.model('anotacionNotificacion', {
         'usuario_id': fields.Integer(required=True),
         'parrafo_id': fields.Integer(required=True),
-        'permite': fields.Boolean(required=True),
+        'ejecuta': fields.Boolean(required=True),
         'valores': fields.List(fields.Nested(anotacionValor), required=True)
     })
 
@@ -101,7 +101,7 @@ class AnotacionDto:
         'parrafo_id': fields.Integer(required=True),
         'usuario_id': fields.Integer(required=True),
         'consolidar': fields.Boolean(required=True),
-        'permite': fields.Boolean(required=True),
+        'ejecuta': fields.Boolean(required=True),
         'valores': fields.List(fields.Nested(anotacionValor))
     })
 
@@ -136,7 +136,7 @@ class AnotacionDto:
     anotacionConsultarAnotadores = api.model('anotacionConsultarAnotadores', {
         'id': fields.Integer,
         'texto': fields.String,
-        'permite': fields.Boolean,
+        'ejecuta': fields.Boolean,
         'comentario': fields.String,
         'valores': fields.List(fields.Nested(anotacionValorConsultar))
     })
@@ -400,7 +400,7 @@ class VisualizacionDto:
         'id': fields.Integer,
         'texto_html': fields.String,
         'comentario': fields.String,
-        'permite': fields.Boolean,
+        'ejecuta': fields.Boolean,
         'tratamientos': fields.List(fields.Nested(tratamientoVisualizacion))
     })
 
