@@ -366,6 +366,7 @@ def consultar_total_anotaciones_usuario(politica_id, usuario_id, consolidar):
 def calcular_coeficiente_interanotador(politica_id, usuarios):
     lista_anotaciones_usuarios = []
 
+    # Se consulta los valores que han sido anotadas sobre la política por cada usuario
     for usuario in usuarios:
         valores = (db.session.query(Anotacion.ejecuta.distinct(), AnotacionValorRelacion.valor_id)
                    .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
@@ -376,27 +377,38 @@ def calcular_coeficiente_interanotador(politica_id, usuarios):
                            Anotacion.consolidar == False)
                    .order_by(AnotacionValorRelacion.valor_id).all())
 
+        #Se crea una tupla (valor.id, anotacion.ejecuta) por cada valor anotado
         anotaciones_usuario = []
 
         for valor in valores:
             tupla = (valor[0], valor[1])
             anotaciones_usuario.append(tupla)
 
+        #Se adjunta a lista_anotaciones_usuarios los valores encontrados en este usuario.
+        #Una vez que se realiza el ciclo para todos los usuarios se obtendrán todos
+        #los valores que han sido anotados sobre la política
         lista_anotaciones_usuarios.append(anotaciones_usuario)
 
-    lista_unica_anotaciones_usuario = lista_anidada_unica(lista_anotaciones_usuarios)
+    #Esta variable contiene todos los valores anotados sobre la política
+    #Se eliminan tuplas repetidas
+    lista_unica_anotaciones = lista_anidada_unica(lista_anotaciones_usuarios)
 
-    datos_matriz = []
+    #Se inicializa la matriz de datos de confiabilidad
+    matriz_datos_confiabilidad = []
 
+    #Se verifica que valores existen en cada usuario
+    #se añade un 1 en caso que el valor existe
+    #o un 0 en caso negativo.
     for usuario in lista_anotaciones_usuarios:
         datos_usuario = []
-        for valor in lista_unica_anotaciones_usuario:
+        for valor in lista_unica_anotaciones:
             if valor in usuario:
                 datos_usuario.append(1)
             else:
                 datos_usuario.append(0)
-        datos_matriz.append(datos_usuario)
+        matriz_datos_confiabilidad.append(datos_usuario)
 
+    #Se consulta en la bdd cuantos parrafos de la política contienen anotaciones
     numero_parrafos_anotados = (db.session.query(Parrafo.id.distinct())
                                 .outerjoin(Anotacion, Parrafo.id == Anotacion.parrafo_id)
                                 .outerjoin(Politica, Parrafo.politica_id == Politica.id)
@@ -405,19 +417,25 @@ def calcular_coeficiente_interanotador(politica_id, usuarios):
 
     numero_parrafos_totales = consultar_num_parrafos_politica(politica_id)
 
+    #Se calcula el numero de párafos no anotados
     numero_parrafos_no_anotados= numero_parrafos_totales - numero_parrafos_anotados
 
+    #Por cada parrafo no anotado se añade un 0
+    #en todos las filas de la matriz de datos de confiablidad
     if numero_parrafos_no_anotados == 0:
-        if all(x == datos_matriz[0] for x in datos_matriz):
-            for usuario in datos_matriz:
+        if all(x == matriz_datos_confiabilidad[0] for x in matriz_datos_confiabilidad):
+            for usuario in matriz_datos_confiabilidad:
                 usuario.append(0)
     else:
         for i in range(0, numero_parrafos_no_anotados):
-            for usuario in datos_matriz:
+            for usuario in matriz_datos_confiabilidad:
                 usuario.append(0)
 
-    datos_de_fiabilidad = array(datos_matriz)
+    #Se transforma la matriz de datos de confiabilidad a un array que la librería
+    #kirppendorff puede entender
+    datos_de_fiabilidad = array(matriz_datos_confiabilidad)
 
+    #Cálculo del coeficiente mediante la librería
     return krippendorff.alpha(reliability_data=datos_de_fiabilidad, level_of_measurement='nominal')
 
 

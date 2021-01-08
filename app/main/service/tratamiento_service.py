@@ -85,6 +85,7 @@ def eliminar_tratamiento(id):
 
 
 def obtener_tratamientos():
+    """Obtiene todos los tratamientos de datos en la base de datos"""
     tratamientos = [TratamientoConsultar]
     tratamientos_aux = Tratamiento.query.all()
     i = 0
@@ -102,6 +103,7 @@ def obtener_tratamientos():
 
 
 def obtener_tratamientos_completos():
+    """Obtiene los tratamientos de datos junto a sus atributos y valores"""
     db.session.configure(autoflush=False)
     tratamientos = [TratamientoCompleto]
     tratamientos_aux = Tratamiento.query.all()
