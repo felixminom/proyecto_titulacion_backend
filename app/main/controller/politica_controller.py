@@ -23,9 +23,8 @@ class Politica(Resource):
         return consultar_politicas()
 
     @api.response(201, 'Politica editada con exito')
-    @api.doc('Editar politica')
+    @api.doc('Editar política')
     def patch(self):
-        """Editar una politica"""
         data = request.json
         return editar_politica(data)
 
@@ -33,28 +32,27 @@ class Politica(Resource):
 @api.route('/Asignada')
 class Politica(Resource):
     @api.response(201, 'Politica asignada editada con exito')
-    @api.doc('Editar asignar politica')
+    @api.doc('Marcar política como asignada')
     def patch(self):
-        """Editar asignar de politica"""
         data = request.json
         return actualizar_politica_asignada(data)
 
 
 @api.route('/<id>')
 @api.param('id', 'Identificador de la politica')
-@api.response(404, 'Politica no encontrado')
+@api.response(404, 'Politica no encontrada')
 class Politica(Resource):
     @api.response(201, 'Politica eliminado con exito')
-    @api.doc('Eliminar politica')
+    @api.doc('Eliminar política por id')
     def delete(self, id):
-        """Eliminar una politica"""
         return eliminar_politica(id=id)
 
 
 @api.route('/Previsualizacion')
 class PoliticaPrevisualizar(Resource):
     @api.response(201, 'Poltica procesada y creada')
-    @api.doc('Preprocesa la politica de privacidad')
+    @api.doc('Preprocesa la politica de privacidad '
+             'y la separa por secciones. No guarda la política')
     def post(self):
         return previsualizar_politica()
 
@@ -62,7 +60,7 @@ class PoliticaPrevisualizar(Resource):
 @api.route('/Usuarios')
 class Politica(Resource):
     @api.response(201, 'Usuarios ingresados')
-    @api.doc('Asignar politica a usuarios')
+    @api.doc('Asignar politica a usuarios (anotadoresy consolidador)')
     @api.expect(_politicaUsuarioGuardar, validate=True)
     def post(self):
         data = request.json
@@ -72,7 +70,7 @@ class Politica(Resource):
 @api.route('/Anotador')
 class Politica(Resource):
     @api.response(201, 'Poltica usuario actualizado')
-    @api.doc('Actualizar usuario finalizo politica')
+    @api.doc('Actualizar si usuario finalizó la anotación de la política')
     @api.expect(_politicaUsuarioGuardar, validate=True)
     def patch(self):
         data = request.json
@@ -83,7 +81,7 @@ class Politica(Resource):
 @api.param('usuario_id', 'Politicas del usuario para anotar')
 @api.response(404, 'Politica no encontrada')
 class Politica(Resource):
-    @api.doc('Consultar politicas por anotar')
+    @api.doc('Consultar politicas por anotar de un usuario')
     def get(self, usuario_id):
         return consultar_politicas_anotador_no_finalizadas(usuario_id)
 
@@ -92,7 +90,7 @@ class Politica(Resource):
 @api.param('administrador_id', 'Politicas del usuario para anotar')
 @api.response(404, 'Politica no encontrada')
 class Politica(Resource):
-    @api.doc('Consultar politicas por consolidar')
+    @api.doc('Consultar politicas por consolidar de un usuario')
     def get(self, administrador_id):
         return consultar_politicas_consolidador_no_finalizadas(administrador_id)
 
@@ -101,6 +99,6 @@ class Politica(Resource):
 @api.param('politica_id', 'Id de la poitica')
 @api.response(404, 'Politica no encontrada')
 class Politica(Resource):
-    @api.doc('Consultar parrafospolitica')
+    @api.doc('Consultar parrafos de una política')
     def get(self, politica_id):
         return consultar_politica_parrafos(politica_id)

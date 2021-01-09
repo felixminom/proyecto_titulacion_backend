@@ -14,6 +14,8 @@ import os
 EXTENSIONES_PERMITIDAS = {'txt'}
 
 #verificamos sistema operativo
+#esto se hizo ya que el desarrollo se realizo en un sistema operativo windows
+#y el sistema se encuentra alojada en un servidor ubuntu
 if os.name == 'nt':
     CARPETA_SUBIDA = os.getcwd() + '\Politicas\\'
 else:
@@ -22,25 +24,26 @@ else:
 politica_respuesta = PoliticaMostrar
 politica_respuesta.parrafos = []
 
-
+#Se limita las extensiones de archivo que se va a guardar
 def archivo_permitido(nombre_archivo):
     return '.' in nombre_archivo and \
            nombre_archivo.rsplit('.', 1)[1].lower() in EXTENSIONES_PERMITIDAS
 
 
+#Se verifica si un archivo existe en la petición enviada desde el frontend
 def politica_existe_peticion():
     if 'politica' not in request.files:
         return False
     else:
         return True
 
-
+#luego de guardar la política se lee su archivo
 def abrir_politica(nombre_archivo):
     with open(CARPETA_SUBIDA + nombre_archivo, 'r') as txt:
         politica = txt.read()
         return politica
 
-
+#Verifica que no existan politicas con nombre duplicado
 def existe_archivo_politica_mismo_nombre(nombre_archivo):
     try:
         with open(CARPETA_SUBIDA + nombre_archivo, 'r') as txt:
@@ -48,17 +51,17 @@ def existe_archivo_politica_mismo_nombre(nombre_archivo):
     except:
         return False
 
-
+#Separa los parrafos de una política de privacidad
 def separar_parrafos_principales(politica):
     parrafos = politica.split('\n\n\n')
     return parrafos
 
-
+#Separa un parrafo en cada salto de linea
 def separar_parrafos_secundarios(parrafo):
     subparrafos = parrafo.split('\n')
     return subparrafos
 
-
+#Llenamos los datos para previsualizar
 def llenar_politica_mostrar():
     peticion = request.form.to_dict()
     politica_respuesta.nombre = peticion.get('nombre')
@@ -66,7 +69,7 @@ def llenar_politica_mostrar():
     politica_respuesta.url = peticion.get('url')
     politica_respuesta.parrafos = []
 
-
+#Se borra el archivo de la politica una vez previsualizad
 def borrar_politica_previsualizacion(archivo):
     try:
         os.remove(CARPETA_SUBIDA + archivo.filename)
@@ -103,6 +106,7 @@ def llenar_politica_html(parrafos):
             subparrafos.remove(subparrafos[0])
 
         for subparrafo in subparrafos:
+            #remplazamos saltos de linea por espacios en blanco o por saltos de linea html (<br>)
             if subparrafo != '':
                 texto += subparrafo + ' '
                 texto_html += subparrafo + '<br><br>'
@@ -114,6 +118,7 @@ def llenar_politica_html(parrafos):
     return politica_respuesta
 
 
+#Función previsualizacion de política
 def previsualizar_politica():
     if not politica_existe_peticion():
         respuesta = {
@@ -313,6 +318,7 @@ def eliminar_politica(id):
 
 
 def actualizar_politica_asignada(data):
+    """ Actualiza el campo 'asignada' de una política """
     politica_aux = Politica.query.filter_by(id=data['id']).first()
     if not politica_aux:
         respuesta = {
@@ -329,12 +335,12 @@ def actualizar_politica_asignada(data):
         }
         return respuesta, 201
 
-
+#Consulta todas las políticas de privacidad
 def consultar_politicas():
     politicas = Politica.query.all()
     return marshal(politicas, PoliticaDto.politicaConsultar), 201
 
-
+#Consulta parrafos de una política
 def consultar_politica_parrafos(politica_id):
     politica_parrafos = PoliticaConsultarParrafos
     politica_parrafos.parrafos = []
@@ -354,6 +360,7 @@ def consultar_politica_parrafos(politica_id):
 
 
 def consultar_politicas_consolidador_no_finalizadas(consolidador_id):
+    """ Consulta las políticas de un consolidador que aún no han sido finalizadas"""
     politicas_anotar = []
     politicas_anotar_consulta = (db.session.query(PoliticaUsuarioRelacion, Politica)
                                  .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
@@ -378,6 +385,7 @@ def consultar_politicas_consolidador_no_finalizadas(consolidador_id):
 
 
 def consultar_politicas_anotador_no_finalizadas(usuario_id):
+    """ Consulta las políticas de un anotador que aún no han sido finalizadas"""
     politicas_anotar = [PoliticaAnotadorNoFinalizadas]
     politicas_anotar_sql = (db.session.query(PoliticaUsuarioRelacion, Politica)
                             .outerjoin(Politica, PoliticaUsuarioRelacion.politica_id == Politica.id)
@@ -399,12 +407,14 @@ def consultar_politicas_anotador_no_finalizadas(usuario_id):
 
 
 def calcular_progeso_politica(politica_id, usuario_id, consolidar):
+    """ Calcula el nivel de progreso en la anotacion o consolidación de una política"""
     num_parrafos = consultar_num_parrafos_politica(politica_id)
     ultimo_parrafo_anotado = consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar) + 1
     return round((ultimo_parrafo_anotado / num_parrafos) * 100, 2)
 
 
 def guardar_usuario_politica(data):
+    """ Permite asignar una política para consolidar o anotar"""
     politica_usuario = PoliticaUsuarioRelacion.query.filter_by(politica_id=data['politica_id'],
                                                                usuario_id=data['usuario_id'],
                                                                consolidar=data["consolidar"]).first()
@@ -431,6 +441,7 @@ def guardar_usuario_politica(data):
 
 
 def actualizar_usuario_politica_asignada(data):
+    """ Marca una política de privacidad como terminada ya sea en anotación o consolidación"""
     politica_usuario = PoliticaUsuarioRelacion.query.filter_by(politica_id=data['politica_id'],
                                                                usuario_id=data['usuario_id'],
                                                                consolidar=data['consolidar']).first()
@@ -445,7 +456,10 @@ def actualizar_usuario_politica_asignada(data):
         politica_usuario.finalizado = True
         guardar_cambios(politica_usuario)
 
-        if politica_lista_para_consolidar(data['politica_id']):
+        #Se comprueba si una política está lista para consolidar (todos los usuarion terminaron anotacion)
+        #Y que no se este modificando en la etapa de consolidación,
+        #de ser asi se calcula el coeficiente inter-anotador
+        if politica_lista_para_consolidar(data['politica_id']) and data['consolidar'] == False:
             usuarios = (db.session.query(PoliticaUsuarioRelacion, Usuario)
                         .outerjoin(Usuario, PoliticaUsuarioRelacion.usuario_id == Usuario.id)
                         .filter(PoliticaUsuarioRelacion.politica_id == data['politica_id'],
@@ -471,6 +485,7 @@ def actualizar_usuario_politica_asignada(data):
 
 
 def politica_lista_para_consolidar(politica_id):
+    """ Se comprueba si una política está lista para consolidar (todos los usuarion terminaron anotacion) """
     politica_anotadores_consulta = (db.session.query(PoliticaUsuarioRelacion)
                                     .filter(PoliticaUsuarioRelacion.politica_id == politica_id,
                                             PoliticaUsuarioRelacion.consolidar == False).all())

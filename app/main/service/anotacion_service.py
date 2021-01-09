@@ -98,6 +98,7 @@ def valor_notificacion(valor_id):
 
 
 def consultar_inconsistencia_notificacion(data):
+    #Se consulta todas las anotaciones reaizadas sobre esta sección"""
     anotaciones_usuarios = (db.session.query(Anotacion, AnotacionValorRelacion, Valor, Atributo, Tratamiento)
                             .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                             .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
@@ -108,6 +109,10 @@ def consultar_inconsistencia_notificacion(data):
                                     Anotacion.usuario_id != data['usuario_id'])
                             .order_by(Tratamiento.id).all())
 
+    #En caso de que no existan valores sobre esta sección se realiza lo siguiente:
+    # Si alguno de los anotadores tiene anotaciones despues de la sección consultada
+    # o si alguno de los anotadores ha terminado la política de privacidad
+    # se sugiere que no se realicen anotaciones sobre esta sección
     if not anotaciones_usuarios:
         parrafo_secuencia = (db.session.query(Parrafo)
                              .filter(Parrafo.id == data['parrafo_id']).first())
@@ -122,9 +127,10 @@ def consultar_inconsistencia_notificacion(data):
         usuarios_ultimo_parrafo = []
 
         for politica_usuario in usuarios_anotadores:
-            usuarios_ultimo_parrafo.append(consultar_ultima_anotacion_usuario_politica(politica_usuario.politica_id,
-                                                                                       politica_usuario.usuario_id,
-                                                                                       False))
+            usuarios_ultimo_parrafo.append(
+                consultar_ultima_anotacion_usuario_politica(politica_usuario.politica_id,
+                                                            politica_usuario.usuario_id,
+                                                            False))
 
         i = 0
         valores_no_consistentes = []
@@ -138,6 +144,7 @@ def consultar_inconsistencia_notificacion(data):
             valores_no_consistentes[i].color_primario = valor[2].color_tratamiento.codigo
             i += 1
 
+
         notificacion = AnotacionNotificacionConsultar(any(x > parrafo_secuencia.secuencia
                                                       for x in usuarios_ultimo_parrafo) or
                                                       any(x.finalizado == True for x in usuarios_anotadores),
@@ -145,6 +152,12 @@ def consultar_inconsistencia_notificacion(data):
                                                       [])
 
         return marshal(notificacion, AnotacionDto.anotacionNotificacionConsultar), 201
+
+    #En caso de que si existan anotaciones sobre una sección se realiza lo siguientes
+    #se verifica si todos los valores enviados desde el frontend existen en las anotaciones
+    #antes consultadas, si todos existen la variable inconsistencia = False
+    #si alguno de los valores no existe se sugiere que no se anote bajo ese valor
+    #y se provee una lista que contiene todos los valores anotados sobre la sección
     else:
         consistencia_valores = []
         valores_no_consistentes = []
@@ -187,6 +200,7 @@ def consultar_inconsistencia_notificacion(data):
 
 
 def obtener_total_anotaciones_parrafo_anotador(data):
+    """Se obtiene el número total de anotaciones sobre una sección"""
     anotaciones_anotador_total = db.session.query(Anotacion)\
                                 .filter(Anotacion.usuario_id == data['usuario_id'],
                                         Anotacion.parrafo_id == data['parrafo_id'],
@@ -199,6 +213,7 @@ def obtener_total_anotaciones_parrafo_anotador(data):
 
 
 def obtener_anotacion_valores(anotacion_id):
+    """ Se consulta los valores que contiene una anotación"""
     valores = []
     valores_anotaciones = (db.session.query(AnotacionValorRelacion, Valor, Atributo, Tratamiento)
                            .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
@@ -223,6 +238,8 @@ def obtener_anotacion_valores(anotacion_id):
 
 
 def obtener_anotaciones_parrafo_usuario(data):
+    """ Se obtiene las anotaciones con sus valores de un usuario sobre una sección de una política
+        ya sea en la etapa de anotación o consolidación"""
     anotaciones = []
     anotaciones_consultar = (db.session.query(Anotacion)
                              .filter(Anotacion.parrafo_id == data['parrafo_id'],
@@ -241,6 +258,9 @@ def obtener_anotaciones_parrafo_usuario(data):
 
 
 def consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consolidar):
+    """ Se consulta el último párrafo anotado por un usuario
+        sirve para calcular el progreso sobre la política y
+        es utilizado en el proceso de notificacion de inconsistencia"""
     ultimo_parrafo_anotado = (db.session.query(Anotacion.parrafo_id, Parrafo.secuencia)
                               .outerjoin(AnotacionValorRelacion,)
                               .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
@@ -257,6 +277,8 @@ def consultar_ultima_anotacion_usuario_politica(politica_id, usuario_id, consoli
 
 
 def consultar_anotaciones_usuario(politica_id, secuencia, usuario_id, consolidar):
+    """ Se consulta las anotaciones de un usuario sobre un párrafo basado en el id de la política
+        y en el número (secuencia) de un párrafo"""
     anotaciones_usuario = []
     anotaciones_parrafo_usuarios = (db.session.query(Anotacion, Usuario, Parrafo)
                                     .outerjoin(Usuario, Anotacion.usuario_id == Usuario.id)
@@ -279,6 +301,7 @@ def consultar_anotaciones_usuario(politica_id, secuencia, usuario_id, consolidar
 
 
 def consultar_inconsistencia(politica_id, secuencia, usuarios):
+    """ Notifica si una sección tiene todas las anotaciones iguales o no """
     anotaciones_tuplas = []
     for usuario in usuarios:
         anotaciones_parrafo = (db.session.query(Anotacion, AnotacionValorRelacion)
@@ -306,6 +329,7 @@ def consultar_inconsistencia(politica_id, secuencia, usuarios):
 
 
 def consultar_anotaciones_anotadores(data):
+    """ Consulta de todas las anotaciones realizadas en la etapa de anotación por todos los anotadores """
     usuarios_anotaciones = AnotacionesAnotadoresConsultarRespuesta
     anotaciones = []
     anotaciones_aux = []
@@ -332,6 +356,7 @@ def consultar_anotaciones_anotadores(data):
 
 #Calculo de coeficiente interanotador
 def consultar_detalles_anotacion_politica(data):
+    """ Consulta de los detalles de un política de privacidad en la etapa de anotación """
     detallesPolitica = DetallesAnotacionPolitica
     detallesPolitica.anotadores = []
     usuarios = (db.session.query(PoliticaUsuarioRelacion, Usuario)
@@ -353,6 +378,7 @@ def consultar_detalles_anotacion_politica(data):
 
 
 def consultar_total_anotaciones_usuario(politica_id, usuario_id, consolidar):
+    """ Consulta el total de anotaciones realizadas por un usuario en la etapa de anotación """
     total_anotaciones = (db.session.query(Anotacion)
                          .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
                          .outerjoin(Politica, Parrafo.politica_id == Politica.id)
@@ -440,6 +466,7 @@ def calcular_coeficiente_interanotador(politica_id, usuarios):
 
 
 def lista_unica(lista):
+    """Elimina elementos repetidos de una lista"""
     lista_unica = []
     for x in lista:
         if x not in lista_unica:
@@ -449,6 +476,7 @@ def lista_unica(lista):
 
 
 def lista_anidada_unica(lista_listas):
+    """Elimina elementos repetidos de una lista de lista y la aplana a una lista simple"""
     lista_unica = []
     for lista in lista_listas:
         for x in lista:

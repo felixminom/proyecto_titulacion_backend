@@ -15,14 +15,14 @@ _anotacionNotificacion = AnotacionDto.anotacionNotificacion
 @api.route('/')
 class Anotacion(Resource):
     @api.response(201, 'Anotacion creada con exito')
-    @api.doc('Crear nueva anotacion de un parrafo')
+    @api.doc('Crear nueva anotación de un párrafo')
     @api.expect(_anotacion, validate=True)
     def post(self):
         data = request.json
         return guardar_anotacion(data)
 
     @api.response(201, 'Anotacion editada con exito')
-    @api.doc('Editar anotacion de un parrafo')
+    @api.doc('Editar anotación de un párrafo')
     def patch(self):
         data = request.json
         return editar_anotacion(data)
@@ -31,7 +31,7 @@ class Anotacion(Resource):
 @api.route('/Detalles')
 class Anotacion(Resource):
     @api.response(201, AnotacionDto.detallesAnotacionPolitica)
-    @api.doc('Consultar incosistencia en anotacion')
+    @api.doc('Consultar coeficiente interanotador de una política')
     def post(self):
         data = request.json
         return consultar_detalles_anotacion_politica(data)
@@ -51,16 +51,15 @@ class Anotacion(Resource):
 @api.param('id', 'id de anotación')
 @api.response(404, 'Anotaciones no encontradas')
 class AnotacionConsultar(Resource):
-    @api.doc('Eliminar anotacion por Id')
+    @api.doc('Eliminar anotación por Id')
     def delete(self, id):
-        """Eliminar anotacion"""
         return eliminar_anotacion(id)
 
 
 @api.route('/Usuario')
 class Anotacion(Resource):
     @api.response(201, 'Existen anotaciones')
-    @api.doc('Consultar anotaciones de usuarios sobre un parrafo')
+    @api.doc('Consultar anotaciones de usuarios sobre un párrafo')
     def post(self):
         data = request.json
         return consultar_anotaciones_anotadores(data)
@@ -69,7 +68,7 @@ class Anotacion(Resource):
 @api.route('/Total/Anotador')
 class AnotacionTotal(Resource):
     @api.response(201, 'Existen anotaciones')
-    @api.doc('Consultar total anotaciones de usuarios sobre un parrafo')
+    @api.doc('Consultar total de anotaciones de usuario sobre un párrafo')
     @api.expect(AnotacionDto.consultarTotalAnotaciones, validate=True)
     def post(self):
         data = request.json
@@ -79,7 +78,7 @@ class AnotacionTotal(Resource):
 @api.route('/Usuario/Parrafo')
 class Anotacion(Resource):
     @api.response(201, 'Existen anotaciones')
-    @api.doc('Consultar anotaciones de usuarios sobre un parrafo')
+    @api.doc('Consultar anotaciones de usuarios sobre un párrafo')
     @api.expect(AnotacionDto.consultarTotalAnotaciones, validate=True)
     def post(self):
         data = request.json

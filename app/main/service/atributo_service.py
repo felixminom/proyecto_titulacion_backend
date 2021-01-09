@@ -87,6 +87,7 @@ def obtener_todos_atributos():
 
 
 def obtener_atributos_tratamiento(tratamiento_id):
+    """ Obtiene los atributos que pertenecen a un tratamiento"""
     atributos = []
     atributos_consultar = (db.session.query(Atributo, Tratamiento).
                            outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)
@@ -104,6 +105,7 @@ def obtener_atributos_tratamiento(tratamiento_id):
 
 
 def obtener_atributos_tratamiento_completo(tratamiento_id):
+    """Obtiene los atributos con sus valores filtrados por un tratamiento"""
     atributos = []
     atributos_consultar = (db.session.query(Atributo, Tratamiento).
                            outerjoin(Tratamiento, Atributo.tratamiento_id == Tratamiento.id)

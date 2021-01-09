@@ -9,7 +9,7 @@ api = VisualizacionDto.api
 @api.param('id', 'id de política')
 class Politica(Resource):
     @api.response(201, '', VisualizacionDto.politicaVisualizacion)
-    @api.doc('Consultar politica para visualizar')
+    @api.doc('Consultar política con sus secciones y anotaciones')
     def get(self, id):
         return consultar_politica_visualizar(politica_id=id)
 
@@ -17,6 +17,6 @@ class Politica(Resource):
 @api.route('/Politicas')
 class Politicas(Resource):
     @api.response(201, '', VisualizacionDto.listaPoliticas)
-    @api.doc('Consultar politicas anotadas')
+    @api.doc('Consultar políticas que han finalizado el proceso de anotación')
     def get(self):
         return consultar_politicas_visualizar()

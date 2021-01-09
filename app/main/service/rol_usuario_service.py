@@ -73,6 +73,7 @@ def obtener_rol(id):
 
 
 def guardar_rol_modulo(modulo):
+    """ Guarda la relación de un módulo con un rol de usuario """
     rol = RolUsuario.query.filter_by(id=modulo['rol_id']).first()
     if rol:
         modulo = Modulo.query.filter_by(id=modulo['modulo_id']).first()
@@ -103,15 +104,6 @@ def guardar_rol_modulo(modulo):
             'mensaje': 'Rol de usuario no encontrado'
         }
         return respuesta, 409
-
-
-def obtener_modulo_rol(rol_id):
-    if rol_id == 0:
-        rol_usuario = RolUsuario.query.all()
-        return marshal(rol_usuario, RolUsuarioDto.rolUsuarioModuloCosultar)
-    else:
-        rol_usuario = RolUsuario.query.filter_by(id=rol_id).first()
-        return marshal(rol_usuario, RolUsuarioDto.rolUsuarioModuloCosultar)
 
 
 def guardar_cambios(data):

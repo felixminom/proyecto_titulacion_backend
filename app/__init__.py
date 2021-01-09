@@ -13,6 +13,7 @@ from .main.controller.usuario_controller import api as usuario_ns
 from .main.controller.valor_controller import api as valor_ns
 from .main.controller.visualizacion_controller import api as visualizacion_ns
 
+#Se instancian todos las APIs RESTful definidas en el directorio controller
 blueprint = Blueprint('api', __name__)
 
 api = Api(blueprint,

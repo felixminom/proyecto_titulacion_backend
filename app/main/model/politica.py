@@ -2,6 +2,9 @@ from .. import db
 
 
 class PoliticaUsuarioRelacion(db.Model):
+    """ Tabla que nace de la relación muchos a muchos entre política y usuario.
+        Almacena los usuarios asignados a una política de privacidad (anotadores y consolidador)
+        y si estos han  finalizado el proceso o no."""
     __tablename__ = 'politica_usuario'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -18,6 +21,7 @@ class PoliticaUsuarioRelacion(db.Model):
 
 
 class Politica(db.Model):
+    """ Tabla que almacena los detalles de una política de privacidad"""
     __tablename__ = "politica"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

@@ -52,7 +52,7 @@ class ColorId(Resource):
 
     @api.doc('Eliminar color')
     def delete(self, id):
-        """Eliminar atributo"""
+        """Eliminar color por id"""
         return eliminar_color(id)
 
 
@@ -61,7 +61,7 @@ class ColorDisponible(Resource):
     @api.doc('Obtener colores disponibles')
     @api.marshal_with(_colorConsultar)
     def get(self):
-        """Obtener colores disponibles"""
+        """Obtener colores disponibles (no asignados a un tratamiento)"""
         colores = obtener_colores_disponibles()
         if not colores:
             api.abort(404)

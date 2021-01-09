@@ -3,7 +3,7 @@ import datetime
 
 
 class TokenListaNegra(db.Model):
-    """modelo de token para almacenar JWT"""
+    """ Tabla que almacena tokens marcados como no válidos """
     __tablename__ = 'lista_negra_tokens'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -19,6 +19,7 @@ class TokenListaNegra(db.Model):
     def __repr__(self):
         return '<id: token: {}>'.format(self.token)
 
+    #Permite verificar si un token ya no es válido
     @staticmethod
     def verificar_token_lista_negra(auth_token):
         resultado = TokenListaNegra.query.filter_by(token=str(auth_token)).first()

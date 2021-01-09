@@ -42,7 +42,7 @@ class Usuario(Resource):
     def delete(self, id):
         return eliminar_usuario(id=id)
 
-    @api.doc('Obtener Usuario por email')
+    @api.doc('Obtener Usuario por id')
     @api.marshal_with(_usuarioConsultar)
     def get(self, id):
         usuario = obtener_usuario(id)
@@ -56,7 +56,7 @@ class Usuario(Resource):
 @api.response(404, 'Anotadores no encontrados')
 class Usuario(Resource):
     @api.response(201, 'Anotadores')
-    @api.doc('Obtener anotadores para asignar')
+    @api.doc('Obtener anotadores disponibles para asignar a una política')
     def get(self):
         return obtener_anotadores_activos()
 
@@ -65,6 +65,6 @@ class Usuario(Resource):
 @api.response(404, 'Administradores no encontrados')
 class Usuario(Resource):
     @api.response(201, 'Administradores')
-    @api.doc('Obtener administradores para asignar')
+    @api.doc('Obtener administradores disponibles para asignar a una política')
     def get(self):
         return obtener_administradores_activos()

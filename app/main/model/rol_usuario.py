@@ -1,14 +1,15 @@
 from .. import db
 
+#Tabla que nace de la relación muchos a muchos entre módulo y rol de usuario
+#Almacena los módulos a los que un rol de usuario tiene acceso
 rol_usuario_modulo_relacion = db.Table(
     'rol_modulo', db.metadata,
     db.Column('rol_usuario_id', db.Integer, db.ForeignKey('rol_usuario.id')),
     db.Column('modulo_id', db.Integer, db.ForeignKey('modulo.id'))
 )
 
-
 class RolUsuario(db.Model):
-    """Roles de usuario para manejo de modulos"""
+    """ Tabla que almacena Roles de usuario de la herramienta de anotación"""
     __tablename__ = "rol_usuario"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

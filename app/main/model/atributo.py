@@ -2,6 +2,7 @@ from .. import db
 
 
 class Atributo(db.Model):
+    """ Tabla que almacena los atributos de un tratamiento """
     __tablename__ = "atributo"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

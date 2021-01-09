@@ -2,7 +2,7 @@ from .. import db
 
 
 class Tratamiento(db.Model):
-    """Modelo de tratamiento"""
+    """ Tabla que almacena los tratamientos de datos"""
     __tablename__ = "tratamiento"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

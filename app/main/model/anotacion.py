@@ -2,6 +2,7 @@ from .. import db
 
 
 class AnotacionValorRelacion(db.Model):
+    """ Tabla que nace de la relación de muchos a muchos entre párrafo y valor """
     __tablename__ = 'anotacion_valor'
 
     anotacion_id = db.Column(db.Integer, db.ForeignKey('anotacion.id'), nullable=False, primary_key=True)
@@ -12,6 +13,7 @@ class AnotacionValorRelacion(db.Model):
 
 
 class Anotacion(db.Model):
+    """ Tabla que almancena las anotaciones realizadas sobre un política de privacidad """
     __tablename__ = "anotacion"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)

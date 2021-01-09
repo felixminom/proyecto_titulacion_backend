@@ -71,6 +71,7 @@ def eliminar_valor(id):
 
 
 def obtener_valores_atributo(atributo_id):
+    """ Obtiene los valores que pertenecen a un atributo"""
     valores = [ValorConsultar]
     valores_consultar = (db.session.query(Valor, Atributo, Tratamiento)
                          .outerjoin(Atributo, Valor.atributo_id == Atributo.id)
@@ -90,6 +91,9 @@ def obtener_valores_atributo(atributo_id):
 
 
 def obtener_valores_atributo_completo(atributo_id):
+    """ Obtiene los valores de un atributo pero incluyendo el id de atributo y tratamiento padre y
+        el color del tratamiento. Esta función es útil para presentar la vista de árbol de las herramientas de
+        anotación y visualización"""
     valores = [ValorConsultar]
     valores_consultar = (db.session.query(Valor, Atributo, Tratamiento)
                          .outerjoin(Atributo, Valor.atributo_id == Atributo.id)

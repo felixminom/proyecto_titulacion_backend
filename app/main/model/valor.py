@@ -2,7 +2,7 @@ from .. import db
 
 
 class Valor(db.Model):
-
+    """ Tabla que almacena los valores de un atributo"""
     __tablename__ = "valor"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

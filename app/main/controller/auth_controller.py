@@ -36,7 +36,7 @@ class UsuarioLogout(Resource):
 @api.route('/logged')
 class UsuarioLogged(Resource):
     """
-        API para verificar si el token aun es valido
+        API para verificar si el token aún es válido
     """
     @api.doc('usuario logged')
     def post(self):

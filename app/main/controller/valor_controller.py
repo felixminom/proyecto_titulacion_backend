@@ -17,15 +17,13 @@ class Valor(Resource):
     @api.doc('Crear nuevo valor de un atributo')
     @api.expect(_valor, validate=True)
     def post(self):
-        """Crear valor de un atributo"""
         data = request.json
         return guardar_valor(valor=data)
 
     @api.response(201, 'Valor editado exitosamente')
-    @api.doc('Editar descripcion de valor')
+    @api.doc('Editar descripción de valor')
     @api.expect(_valorEditar, validate=True)
     def patch(self):
-        """Editar valor"""
         data = request.json
         return editar_valor(data=data)
 
@@ -34,7 +32,7 @@ class Valor(Resource):
 @api.param('atributo_id', 'id del atributo')
 @api.response(404, 'No existen valores para este atributo')
 class ValorAtributoId(Resource):
-    @api.doc('Obtener tratamiento')
+    @api.doc('Obtener valores de un atributo')
     def get(self, atributo_id):
         """obtener valores por atributo"""
         return obtener_valores_atributo(atributo_id=atributo_id)

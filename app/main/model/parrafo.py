@@ -2,7 +2,7 @@ from .. import db
 
 
 class Parrafo(db.Model):
-    """Parrafos de las politicas de privacidad"""
+    """ Tabla que almacena los párrafos/secciones de una política """
     __tablename__ = "parrafo"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

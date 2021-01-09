@@ -8,6 +8,8 @@ flask_bcrypt = Bcrypt()
 
 
 def crear_aplicacion(config_name):
+    """ Se crea la instancia de la aplicación de flask y se la ejecuta en el ambiente (dev o prod)
+        que se recibe como parametro"""
     app = Flask(__name__)
     app.config.from_object(config_by_name[config_name])
     db.init_app(app)

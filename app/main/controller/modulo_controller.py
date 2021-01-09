@@ -25,10 +25,9 @@ class ListaModulos(Resource):
         return guardar_modulo(data)
 
     @api.response(201, 'Módulo editado exitosamente')
-    @api.doc('Editar código hexadecimal de color')
+    @api.doc('Editar un módulo')
     @api.expect(_moduloEditar, validate=True)
     def patch(self):
-        """Editar color"""
         data = request.json
         return editar_modulo(data)
 
@@ -48,5 +47,4 @@ class Modulo(Resource):
 
     @api.doc('Eliminar color')
     def delete(self, id):
-        """Eliminar atributo"""
         return eliminar_modulo(id)

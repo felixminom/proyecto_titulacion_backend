@@ -13,16 +13,14 @@ _tratamientoCompleto = TratamientoDto.tratamientoCompleto
 
 @api.route('/')
 class TratamientoList(Resource):
-    @api.doc('Lista de tratamientos')
+    @api.doc('Lista de todos los tratamientos')
     def get(self):
-        """Lista de tratamientos registrados"""
         return obtener_tratamientos()
 
     @api.response(201, 'Tratamiento creado exitosamente')
     @api.doc('Crear nuevo tratamiento')
     @api.expect(_tratamiento, validate=True)
     def post(self):
-        """Crea un nuevo tratamiento"""
         data = request.json
         return guardar_tratamiento(data=data)
 
@@ -30,17 +28,15 @@ class TratamientoList(Resource):
     @api.doc('Editar tratamiento')
     @api.expect(_tratamientoEditar, validate=True)
     def patch(self):
-        """Edita el tratamiento por id"""
         data = request.json
         return editar_tratamiento(data=data)
 
 
 @api.route('/TratamientosCompletos')
 class TratamientoCompleto(Resource):
-    @api.doc('Lista de tratamientos completos')
+    @api.doc('Lista de tratamientos con sus atributo y valores')
     @api.marshal_list_with(_tratamientoCompleto)
     def get(self):
-        """Lista de tratamientos completos"""
         tratamientos_completos = obtener_tratamientos_completos()
         if not tratamientos_completos:
             api.abort(404)
@@ -53,7 +49,6 @@ class TratamientoCompleto(Resource):
 @api.response(404, 'Tratamiento no encontrado')
 class Tratamiento(Resource):
     @api.response(200, 'Tratamiento eliminado con exito')
-    @api.doc('Eliminar tratamiento')
+    @api.doc('Eliminar tratamiento por id')
     def delete(self, id):
-        """Eliminar tratamiento"""
         return eliminar_tratamiento(id=id)

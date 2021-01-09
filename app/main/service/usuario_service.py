@@ -13,6 +13,7 @@ import random
 
 
 def clave_aleatoria():
+    """ Se genera una clave aleatoria combinando letras mayúscula, minúsculas y números"""
     caracteres = string.ascii_uppercase + string.ascii_lowercase + string.digits
     tamano = random.randint(8, 12)
     return ''.join(random.choice(caracteres) for x in range(tamano))

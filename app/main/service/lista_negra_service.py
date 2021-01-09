@@ -3,6 +3,7 @@ from app.main.model.lista_negra import TokenListaNegra
 
 
 def guardar_token(token, usuario_id):
+    """ Guarda un token invalido en la tabla TokenListaNegra"""
     token_lista_negra = TokenListaNegra(token=token, usuario_id=usuario_id)
     try:
         db.session.add(token_lista_negra)

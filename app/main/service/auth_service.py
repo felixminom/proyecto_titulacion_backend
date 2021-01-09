@@ -10,6 +10,7 @@ usuario.modulos = []
 
 
 def consultar_modulos_hijos(rol_usuario):
+    """ Consulta todos los módulos de un módulo padre """
     rol_usuario = RolUsuario.query.filter_by(id=rol_usuario).first()
     i = 0
     usuario.modulos.clear()

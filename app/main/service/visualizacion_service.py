@@ -13,6 +13,7 @@ from flask_restplus import marshal
 
 
 def consultar_politicas_visualizar():
+    """ Lista de todas las políticas que han concluido la consolidación"""
     politicas = []
     politicas_consulta = (db.session.query(Politica)
                           .outerjoin(PoliticaUsuarioRelacion, Politica.id == PoliticaUsuarioRelacion.politica_id)
@@ -28,6 +29,7 @@ def consultar_politicas_visualizar():
 
 
 def consultar_politica_visualizar(politica_id):
+    """Consulta de política de privacidad con sus secciones y anotaciones """
     politica_consultar = Politica.query.filter_by(id=politica_id).first()
 
     if not politica_consultar:
@@ -40,6 +42,7 @@ def consultar_politica_visualizar(politica_id):
         parrafos = []
         parrafos_consulta = Parrafo.query.filter_by(politica_id=politica_id).all()
 
+        #Aqui se llena los tratamientos atributos y valores de una anotación.
         for parrafo in parrafos_consulta:
             anotaciones = []
             anotaciones_consulta = Anotacion.query.filter_by(parrafo_id=parrafo.id, consolidar=True).all()
@@ -78,6 +81,7 @@ def consultar_politica_visualizar(politica_id):
 
 
 def consultar_tratamientos_lista(politica_id):
+    """ Consulta de todos los tratamientos de datos que están disponibles para anotar"""
     tratamientos = []
     tratamientos_consultar = Tratamiento.query.all()
 
@@ -109,6 +113,7 @@ def consultar_tratamientos_lista(politica_id):
 
 
 def consultar_total_anotaciones_tratamiento(politica_id, tratamiento_id):
+    """ Número de anotaciones que contiene un tratamiento de datos"""
     anotaciones_total = (db.session.query(Anotacion)
                          .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                          .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
@@ -123,6 +128,7 @@ def consultar_total_anotaciones_tratamiento(politica_id, tratamiento_id):
 
 
 def consultar_total_anotaciones_atributo(politica_id, atributo_id):
+    """ Número de anotaciones que contiene un atributo"""
     anotaciones_total = (db.session.query(Anotacion)
                          .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                          .outerjoin(Valor, AnotacionValorRelacion.valor_id == Valor.id)
@@ -136,6 +142,9 @@ def consultar_total_anotaciones_atributo(politica_id, atributo_id):
 
 
 def consultar_total_anotaciones(politica_id):
+    """ Total de anotaciones realizadas sobre una política,
+        este valor se presenta junto a cada política de privacidad
+        en la interfaz donde se listan todas las políticas disponibles"""
     anotaciones = (db.session.query(Anotacion)
                    .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)
                    .filter(Parrafo.politica_id == politica_id,
@@ -145,6 +154,8 @@ def consultar_total_anotaciones(politica_id):
 
 
 def consultar_total_anotaciones_valor(politica_id):
+    """ Total de tratamientos/atributos/valores anotados,
+        este valor se usa para el cálculo del porcentaje que cada tratamiento representa del total de anotaciones"""
     anotaciones = (db.session.query(Anotacion.id)
                    .outerjoin(AnotacionValorRelacion, Anotacion.id == AnotacionValorRelacion.anotacion_id)
                    .outerjoin(Parrafo, Anotacion.parrafo_id == Parrafo.id)

@@ -12,7 +12,7 @@ _atributoConsultar = AtributoDto.atributoConsultar
 
 @api.route('/')
 class Atributo(Resource):
-    @api.doc('Lista de atributos')
+    @api.doc('Lista de todos los atributos')
     @api.marshal_list_with(_atributoConsultar)
     def get(self):
         """Lista de todos los atributos"""
@@ -39,7 +39,7 @@ class Atributo(Resource):
 @api.param('tratamiento_id', 'id del tratamiento')
 @api.response(404, 'No existen atributos para este tratamiento')
 class AtributoTratamientoId(Resource):
-    @api.doc('Obtener tratamiento')
+    @api.doc('Obtener atributos por tratamiento')
     def get(self, tratamiento_id):
         """obtener atributos por tratamiento"""
         return obtener_atributos_tratamiento(tratamiento_id)
@@ -49,7 +49,7 @@ class AtributoTratamientoId(Resource):
 @api.param('id', 'id de atributo')
 @api.response(404, 'Atributo no encontrado')
 class AtributoId(Resource):
-    @api.doc('Eliminar atributo')
+    @api.doc('Eliminar atributo por id')
     def delete(self, id):
         """Eliminar atributo"""
         return eliminar_atributo(id)

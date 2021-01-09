@@ -23,6 +23,7 @@ def eliminar_parrafos_politica(politica_id):
 
 
 def consultar_num_parrafos_politica(politica_id):
+    """ Consulta el total de parrafos/secciones de una política"""
     num_parrafos = (db.session.query(Parrafo)
                     .filter(Parrafo.politica_id == politica_id).count())
     return num_parrafos

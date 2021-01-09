@@ -6,7 +6,7 @@ import datetime
 
 
 class Usuario(db.Model):
-    """"Modelo de Usuario"""
+    """" Tabla que almacena los usuarios de la herramienta de anotación"""
     __tablename__ = "usuario"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -18,17 +18,24 @@ class Usuario(db.Model):
     entrenamiento = db.Column(db.Boolean)
     anotaciones = db.relationship("Anotacion", backref=db.backref("usuario"))
 
+    #Restringue que la clave sea leida en código
+    #este campo solo puede ser escrito
     @property
     def clave(self):
         raise AttributeError('clave: campo solo de escritura')
 
+    #Se ejecuta antes de guardar una clave en la base de datos
+    #se utiliza el algoritmo bcrypt
     @clave.setter
     def clave(self, clave):
         self.clave_hash = flask_bcrypt.generate_password_hash(clave).decode('utf-8')
 
+    #Se ejecuta cuando un usuario intenta ingresar al sistema
+    #se comprueba la clave que ha sido enviada
     def comparar_clave(self, clave):
         return flask_bcrypt.check_password_hash(self.clave_hash, clave)
 
+    #Genera un token para la sesión del usuario
     @staticmethod
     def codificar_auth_token(usuario_id):
         try:
@@ -44,6 +51,9 @@ class Usuario(db.Model):
         except Exception as e:
             return e
 
+    #Verifica si un token aún es valido
+    #si es que es valido devuelve el campo sub del token que contiene el id del usuario
+    #caso contrario se devuelve un mensaje de error
     @staticmethod
     def decodificar_auth_token(auth_token):
         try:
