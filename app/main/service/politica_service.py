@@ -39,7 +39,7 @@ def politica_existe_peticion():
 
 #luego de guardar la política se lee su archivo
 def abrir_politica(nombre_archivo):
-    with open(CARPETA_SUBIDA + nombre_archivo, 'r') as txt:
+    with open(CARPETA_SUBIDA + nombre_archivo, 'r', encoding='utf-8') as txt:
         politica = txt.read()
         return politica
 

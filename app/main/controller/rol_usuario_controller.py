@@ -3,14 +3,13 @@ from flask_restplus import Resource
 
 from ..util.dto import RolUsuarioDto
 from ..service.rol_usuario_service import guardar_rol, obtener_roles, editar_rol, eliminar_rol,\
-    obtener_rol, guardar_rol_modulo, obtener_modulo_rol
+    obtener_rol, guardar_rol_modulo
 
 api = RolUsuarioDto.api
 _rolUsuario = RolUsuarioDto.rolUsuario
 _rolUsuarioConsultar = RolUsuarioDto.rolUsuarioConsultar
 _rolUsuarioModulo = RolUsuarioDto.rolUsuarioModulo
 _rolEditar = RolUsuarioDto.rolUsuarioEditar
-
 
 @api.route('/')
 class ListaRolesUsuario(Resource):
